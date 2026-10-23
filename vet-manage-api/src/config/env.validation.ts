@@ -1,8 +1,9 @@
-import { plainToInstance } from 'class-transformer';
+import { Type, plainToInstance } from 'class-transformer';
 import { IsInt, IsOptional, IsString, IsUrl, Min, validateSync } from 'class-validator';
 
 class EnvironmentVariables {
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   @Min(1)
   PORT = 3080;
