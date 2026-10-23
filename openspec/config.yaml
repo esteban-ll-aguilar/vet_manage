@@ -1,0 +1,31 @@
+schema: spec-driven
+
+context: |
+  Proyecto Vet Manage, con frontend React/Vite y backend NestJS + TypeScript.
+  El backend usa Prisma 7 con PostgreSQL, Redis y RabbitMQ mediante Docker Compose.
+  La arquitectura es un monolito modular: config, common, domain,
+  modules y infrastructure. No se deben inventar módulos de negocio todavía.
+  Cada módulo futuro tendrá repositories, dtos, services y routes; no se
+  agregará una carpeta use-cases salvo que el equipo lo decida después.
+  Prisma es el acceso persistente; no usar JPA. Los servicios Docker deben
+  usar nombres de servicio en la red interna y puertos no predeterminados
+  publicados al host. TypeScript usa ESM y las importaciones existentes
+  incluyen extensión .js.
+
+rules:
+  proposal:
+    - Mantener el alcance limitado a la fundación técnica; no definir entidades de negocio.
+  design:
+    - Documentar puertos, variables de entorno y comandos de arranque.
+  tasks:
+    - Cada tarea debe ser verificable de forma independiente.
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always include a "Non-goals" section
+#     tasks:
+#       - Break tasks into chunks of max 2 hours

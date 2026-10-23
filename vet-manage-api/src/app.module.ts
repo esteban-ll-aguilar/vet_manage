@@ -1,9 +1,27 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
+import configuration from './config/configuration.js';
+import { validateEnvironment } from './config/env.validation.js';
+import { HealthModule } from './health/health.module.js';
+import { PrismaModule } from './infrastructure/database/prisma/prisma.module.js';
+import { RabbitmqModule } from './infrastructure/rabbitmq/rabbitmq.module.js';
+import { RedisModule } from './infrastructure/redis/redis.module.js';
 
 @Module({
-  imports: [],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      cache: true,
+      load: [configuration],
+      validate: validateEnvironment,
+    }),
+    PrismaModule,
+    RedisModule,
+    RabbitmqModule,
+    HealthModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
