@@ -66,6 +66,9 @@ services:
       RABBITMQ_URL: amqp://${RABBITMQ_USER:-vetmanage}:${RABBITMQ_PASSWORD:-vetmanage_dev_password}@rabbitmq:55672
       CHOKIDAR_USEPOLLING: 'true'
       WATCHPACK_POLLING: 'true'
+      TSC_WATCHFILE: DynamicPolling
+      TSC_WATCHDIRECTORY: DynamicPriorityPolling
+      TSC_NONPOLLING_WATCHER: 'false'
     command: ['sh', '-c', 'npx prisma generate && npm run start:dev']
     volumes:
       - ./vet-manage-api:/app

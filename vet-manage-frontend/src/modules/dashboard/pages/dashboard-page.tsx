@@ -3,6 +3,7 @@ import { StatusDot } from '../../../common/components/status-dot';
 import { getJson } from '../../../infrastructure/api/http-client';
 
 type HealthResponse = { status: string };
+type DemoResponse = { success: boolean; message: string; timestamp: string };
 
 const metrics = [
   { label: 'Citas de hoy', value: '12', note: '+3 frente a ayer', tone: 'blue' },
@@ -12,10 +13,14 @@ const metrics = [
 
 export function DashboardPage() {
   const [apiStatus, setApiStatus] = useState<'loading' | 'online' | 'offline'>('loading');
+  const [demoResponse, setDemoResponse] = useState<DemoResponse | null>(null);
 
   useEffect(() => {
-    getJson<HealthResponse>('/health')
-      .then((response) => setApiStatus(response.status === 'ok' ? 'online' : 'offline'))
+    Promise.all([getJson<HealthResponse>('/health'), getJson<DemoResponse>('/demo')])
+      .then(([health, demo]) => {
+        setApiStatus(health.status === 'ok' && demo.success ? 'online' : 'offline');
+        setDemoResponse(demo);
+      })
       .catch(() => setApiStatus('offline'));
   }, []);
 
@@ -63,6 +68,16 @@ export function DashboardPage() {
           <button className="quick-action" type="button"><span>◷</span><div><b>Crear cita</b><small>Organiza la agenda del equipo</small></div></button>
           <button className="quick-action" type="button"><span>⌁</span><div><b>Buscar historial</b><small>Consulta un registro clínico</small></div></button>
         </article>
+      </section>
+
+      <section className="integration-card">
+        <div className="integration-icon">✓</div>
+        <div>
+          <span className="eyebrow">Integración en vivo</span>
+          <h3>{demoResponse?.message ?? 'Verificando respuesta de la API...'}</h3>
+          <small>{demoResponse ? `Respuesta recibida: ${new Date(demoResponse.timestamp).toLocaleTimeString()}` : 'Conectando con /api/v1/demo'}</small>
+        </div>
+        <code>GET /api/v1/demo</code>
       </section>
 
       <footer className="system-status"><StatusDot status={apiStatus} /> API {apiStatus === 'online' ? 'conectada' : apiStatus === 'offline' ? 'no disponible' : 'verificando'} · Fundación lista para el equipo de desarrollo</footer>

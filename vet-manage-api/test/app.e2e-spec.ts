@@ -23,6 +23,16 @@ describe('AppController (e2e)', () => {
       .expect('Hello World!');
   });
 
+  it('/demo (GET)', () => {
+    return request(app.getHttpServer())
+      .get('/demo')
+      .expect(200)
+      .expect(({ body }) => {
+        expect(body.success).toBe(true);
+        expect(body.service).toBe('vet-manage-api');
+      });
+  });
+
   afterEach(async () => {
     await app.close();
   });

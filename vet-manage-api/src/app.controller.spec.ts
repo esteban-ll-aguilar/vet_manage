@@ -18,5 +18,13 @@ describe('AppController', () => {
     it('should return "Hello World!"', () => {
       expect(appController.getHello()).toBe('Hello World!');
     });
+
+    it('should return the demo integration payload', () => {
+      const response = appController.getDemo();
+
+      expect(response.success).toBe(true);
+      expect(response.service).toBe('vet-manage-api');
+      expect(response.message).toContain('funciona correctamente');
+    });
   });
 });
