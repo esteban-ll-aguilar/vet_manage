@@ -1,4 +1,14 @@
-// Domain models will be added by the team in future module changes.
+enum AuthProvider {
+  LOCAL
+  GOOGLE
+  BOTH
+}
+
+enum RoleCategory {
+  SYSTEM
+  STAFF
+  CLIENT
+}
 
 generator client {
   provider = "prisma-client"
@@ -7,4 +17,146 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+model User {
+  id                 String       @id @default(uuid()) @db.Uuid
+  email              String       @unique @db.VarChar(255)
+  name               String       @db.VarChar(100)
+  password           String?      @db.VarChar(255)
+  provider           AuthProvider @default(LOCAL)
+  googleId           String?      @unique @map("google_id") @db.VarChar(100)
+  isActive           Boolean      @default(false) @map("is_active")
+  isLocked           Boolean      @default(false) @map("is_locked")
+  lockedAt           DateTime?    @map("locked_at")
+  emailVerifiedAt    DateTime?    @map("email_verified_at")
+  mustChangePassword Boolean      @default(false) @map("must_change_password")
+  createdAt          DateTime     @default(now()) @map("created_at")
+  updatedAt          DateTime     @updatedAt @map("updated_at")
+
+  profile           UserProfile?
+  sessions          UserSession[]
+  userRoles         UserRole[]
+  createdRoles      Role[]        @relation("RoleCreatedBy")
+  assignedUserRoles UserRole[]    @relation("UserRoleAssignedBy")
+
+  @@index([email])
+  @@index([name])
+  @@map("users")
+}
+
+model UserProfile {
+  id             String    @id @db.Uuid
+  firstName      String?   @map("first_name") @db.VarChar(100)
+  lastName       String?   @map("last_name") @db.VarChar(100)
+  phone          String?   @db.VarChar(20)
+  identification String?   @unique @db.VarChar(20)
+  avatarUrl      String?   @map("avatar_url") @db.Text
+  birthDate      DateTime? @map("birth_date") @db.Date
+  address        String?   @db.Text
+  postalCode     String?   @map("postal_code") @db.VarChar(20)
+  observations   String?   @db.Text
+  sex            String?   @db.VarChar(20)
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  user User @relation(fields: [id], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+model UserSession {
+  id               String    @id @default(uuid()) @db.Uuid
+  userId           String?   @map("user_id") @db.Uuid
+  refreshTokenHash String    @unique @map("refresh_token_hash") @db.VarChar(128)
+  expiresAt        DateTime  @map("expires_at")
+  revokedAt        DateTime? @map("revoked_at")
+  ipAddress        String?   @map("ip_address") @db.VarChar(45)
+  userAgent        String?   @map("user_agent") @db.Text
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([expiresAt, revokedAt])
+  @@map("user_sessions")
+}
+
+model Role {
+  id             String       @id @default(uuid()) @db.Uuid
+  name           String       @unique @db.VarChar(50)
+  displayName    String       @map("display_name") @db.VarChar(150)
+  description    String?      @db.Text
+  isSystem       Boolean      @default(false) @map("is_system")
+  isActive       Boolean      @default(true) @map("is_active")
+  isVisible      Boolean      @default(true) @map("is_visible")
+  category       RoleCategory @default(STAFF) @map("role_category")
+  organizationId String?      @map("organization_id") @db.Uuid
+  createdById    String?      @map("created_by_id") @db.Uuid
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  createdBy       User?            @relation("RoleCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  userRoles       UserRole[]
+  rolePermissions RolePermission[]
+
+  @@index([organizationId])
+  @@index([name])
+  @@index([category])
+  @@map("roles")
+}
+
+model Permission {
+  id          String   @id @default(uuid()) @db.Uuid
+  module      String   @db.VarChar(100)
+  action      String   @db.VarChar(100)
+  displayName String   @map("display_name") @db.VarChar(150)
+  description String?  @db.Text
+  isActive    Boolean  @default(true) @map("is_active")
+  isVisible   Boolean  @default(true) @map("is_visible")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  rolePermissions RolePermission[]
+
+  @@unique([module, action], name: "permission_module_action_key")
+  @@index([isActive])
+  @@map("permissions")
+}
+
+model UserRole {
+  id             String    @id @default(uuid()) @db.Uuid
+  userId         String    @map("user_id") @db.Uuid
+  roleId         String    @map("role_id") @db.Uuid
+  organizationId String?   @map("organization_id") @db.Uuid
+  assignedById   String?   @map("assigned_by_id") @db.Uuid
+  expiresAt      DateTime? @map("expires_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  user       User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role       Role  @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  assignedBy User? @relation("UserRoleAssignedBy", fields: [assignedById], references: [id], onDelete: SetNull)
+
+  @@unique([userId, roleId, organizationId], name: "user_role_organization_key")
+  @@index([userId])
+  @@index([roleId])
+  @@index([organizationId])
+  @@map("user_roles")
+}
+
+model RolePermission {
+  roleId       String   @map("role_id") @db.Uuid
+  permissionId String   @map("permission_id") @db.Uuid
+  grantedAt    DateTime @default(now()) @map("granted_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@index([permissionId])
+  @@map("role_permissions")
 }
