@@ -5,6 +5,7 @@ import { DEMO_PASSWORD, seedIdentity } from './identity.seed.ts';
 import { seedInventory } from './inventory.seed.ts';
 import { seedBreeds } from './breeds.seed.ts';
 import { seedSpecies } from './species.seed.ts';
+import { seedAgendamiento } from './agendamiento.seed.ts';
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) throw new Error('DATABASE_URL is required to run the seed');
@@ -24,6 +25,11 @@ try {
 
   const breeds = await seedBreeds(prisma);
   console.log(`Breeds seed completado: ${breeds.breeds} razas de ejemplo.`);
+
+  const agendamiento = await seedAgendamiento(prisma);
+  console.log(
+    `Agendamiento seed completado: ${agendamiento.sucursales} sucursales, ${agendamiento.salas} salas, ${agendamiento.servicios} servicios, ${agendamiento.tarifas} tarifas, ${agendamiento.horariosBase} horarios base, ${agendamiento.disponibilidades} disponibilidades, ${agendamiento.turnosSabado} turnos de sábado, ${agendamiento.bloqueos} bloqueos, ${agendamiento.clientes} clientes, ${agendamiento.pacientes} pacientes y ${agendamiento.citas} citas.`,
+  );
 } finally {
   await prisma.$disconnect();
 }

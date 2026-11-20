@@ -155,6 +155,36 @@ inexistente o inactiva; `403` si falta algún permiso. Los permisos se consultan
 en la base de datos en cada petición (roles activos y vigentes), por lo que un
 cambio del Administrador aplica sin reiniciar ni reemitir tokens.
 
+## Auditoría
+
+Cada acción de escritura debe dejar un registro en la tabla `audit_logs`
+(fecha y hora, usuario, rol, acción, módulo y registro afectado). Se registra
+dentro de la misma transacción de la acción, así que si esta falla no queda
+registro, y si no se puede guardar el registro la acción tampoco se guarda.
+
+```ts
+await this.prisma.$transaction(async (tx) => {
+  const species = await this.repository.create(data, tx);
+  await this.audit.record(tx, {
+    actorId,                        // request.user.id, desde el controlador
+    action: AUDIT_ACTIONS.register,
+    module: AUDIT_MODULES.species,
+    affectedRecord: species.name,   // texto legible del registro
+  });
+  return species;
+});
+```
+
+- El módulo debe importar `AuditModule` e inyectar `AuditService`.
+- `record` calcula el rol con los roles activos y vigentes del actor.
+- Las acciones y los módulos salen de `src/modules/audit/audit.catalog.ts`;
+  agregue allí los que necesite su historia.
+- Los registros son de solo lectura: un trigger de la base rechaza `UPDATE` y
+  `DELETE`. Un usuario con registros de auditoría no se puede eliminar.
+- Solo se auditan las escrituras. Las consultas no dejan registro.
+- En las pruebas e2e que crean usuarios, límpielos con `deleteAuditLogsOfPeople`
+  (`test/identity/support.ts`) antes de eliminar a los usuarios.
+
 ## Inicio de sesión y sesiones
 
 | Ruta | Acceso | Descripción |

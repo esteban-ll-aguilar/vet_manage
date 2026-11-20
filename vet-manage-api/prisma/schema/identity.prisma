@@ -18,13 +18,31 @@ model Person {
   lastName       String   @map("last_name") @db.VarChar(100)
   email          String   @unique @db.VarChar(255)
   phone          String?  @db.VarChar(20)
+  address        String?  @map("address") @db.VarChar(255)
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
-  user User?
+  user   User?
+  client Client?
 
   @@index([lastName, firstName])
   @@map("persons")
+}
+
+// Cliente del consultorio. La información de contacto vive en Person;
+// este modelo conserva el estado propio del cliente.
+model Client {
+  id        String       @id @default(uuid()) @db.Uuid
+  personId  String       @unique @map("person_id") @db.Uuid
+  status    RecordStatus @default(ACTIVE)
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+
+  person   Person    @relation(fields: [personId], references: [id], onDelete: Restrict)
+  patients Patient[]
+
+  @@index([status])
+  @@map("clients")
 }
 
 model User {
@@ -47,6 +65,15 @@ model User {
   userRoles         UserRole[]
   createdRoles      Role[]        @relation("RoleCreatedBy")
   assignedUserRoles UserRole[]    @relation("UserRoleAssignedBy")
+  auditLogs         AuditLog[]
+
+  // agendamiento de Citas
+  horariosBase            HorarioBase[]    @relation("HorarioBaseVeterinario")
+  bloqueosVeterinario     BloqueoHorario[] @relation("BloqueoHorarioVeterinario")
+  bloqueosRegistrados     BloqueoHorario[] @relation("BloqueoHorarioRegistradoPor")
+  bloqueosEliminados      BloqueoHorario[] @relation("BloqueoHorarioEliminadoPor")
+  citasComoVeterinario    Cita[]           @relation("CitaVeterinario")
+  citasRegistradas        Cita[]           @relation("CitaRegistradaPor")
 
   @@index([status])
   @@map("users")

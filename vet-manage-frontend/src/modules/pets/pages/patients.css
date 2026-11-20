@@ -1,0 +1,56 @@
+.patients-page { max-width: 1180px; margin: 0 auto; }
+
+.patients-placeholder { display: grid; justify-items: center; gap: 8px; padding: 90px 20px; border: 1px dashed #dce3e9; border-radius: 15px; background: #fff; color: #8a96a3; font-size: 12px; text-align: center; }
+.patients-placeholder__icon { display: grid; place-items: center; width: 52px; height: 52px; margin-bottom: 6px; border-radius: 15px; color: #416fe7; background: #edf2ff; }
+.patients-placeholder strong { color: #26323d; font-size: 15px; }
+
+/* Modal ancho: el modal base mide 460px, demasiado estrecho para dos columnas. */
+.modal-card.patient-modal { width: min(820px, 100%); }
+.patient-modal__title { display: flex; gap: 14px; align-items: center; }
+.patient-modal__icon { display: grid; flex: none; place-items: center; width: 42px; height: 42px; border-radius: 12px; color: #416fe7; background: #edf2ff; }
+
+.patient-form { display: grid; gap: 22px; }
+.patient-form__section { display: grid; gap: 18px; }
+.patient-form__section + .patient-form__section { padding-top: 22px; border-top: 1px solid #eef1f4; }
+.patient-form__heading { display: flex; align-items: center; gap: 11px; }
+.patient-form__heading h4 { margin: 0 0 2px; color: #26323d; font-size: 14px; font-weight: 750; }
+.patient-form__heading p { margin: 0; color: #99a4b0; font-size: 11px; }
+.patient-form__heading-icon { display: grid; flex: none; place-items: center; width: 32px; height: 32px; border-radius: 9px; color: #416fe7; background: #edf2ff; }
+
+/* Tres columnas iguales: todos los campos tienen el mismo ancho. */
+.patient-form__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 16px; align-items: start; }
+.patient-field__optional { color: #9aa5b0; font-size: 11px; font-weight: 450; }
+.patient-form .field > label b, .patient-form .field > span b { color: #c95e65; }
+
+.patient-field__control { position: relative; }
+.patient-field__control > svg { position: absolute; top: 50%; left: 12px; transform: translateY(-50%); color: #a3aeb9; pointer-events: none; transition: color .2s ease; }
+.patient-field__control:focus-within > svg { color: #4c7dff; }
+.patient-field__control:has([aria-invalid="true"]) > svg { color: #de7c82; }
+.patient-form .patient-field__control input, .patient-form .patient-field__control select { padding-left: 38px; font-weight: 450; }
+.patient-form .patient-field__control input::placeholder { color: #a3aeb9; font-weight: 400; }
+
+.client-picker { max-width: 100%; }
+.client-picker__options { display: grid; gap: 2px; max-height: 220px; margin: 0; padding: 4px; overflow-y: auto; border: 1px solid #dfe6ec; border-radius: 8px; background: #fff; list-style: none; box-shadow: 0 8px 20px #1e344114; }
+.client-picker__options button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border: 0; border-radius: 6px; background: transparent; text-align: left; cursor: pointer; }
+.client-picker__options button:hover, .client-picker__options button:focus-visible { background: #f4f7ff; outline: none; }
+.client-picker__selected { display: flex; align-items: center; gap: 11px; padding: 10px 12px; border: 1px solid #7d9fff; border-radius: 8px; background: #f4f7ff; }
+.client-picker__avatar { display: grid; flex: none; place-items: center; width: 30px; height: 30px; border-radius: 50%; color: #416fe7; background: #dce7ff; }
+.client-picker__text { display: grid; flex: 1; min-width: 0; gap: 1px; }
+.client-picker__text b { overflow: hidden; color: #26323d; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.client-picker__text small { color: #8a96a3; font-size: 10px; font-weight: 450; }
+
+.patient-form__error { margin: 0; font-size: 12px; font-weight: 650; }
+/* Los botones quedan fijos al pie del modal aunque el formulario haga scroll. */
+.patient-form__actions { position: sticky; bottom: -24px; z-index: 1; display: flex; justify-content: flex-end; gap: 10px; margin-bottom: -24px; padding: 16px 0 24px; border-top: 1px solid #eef1f4; background: #fff; }
+
+/* Pantallas medianas: dos columnas iguales. */
+@media (max-width: 860px) {
+  .patient-form__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+  .modal-overlay:has(.patient-modal) { padding: 12px; }
+  .patient-form__grid { grid-template-columns: 1fr; }
+  .patient-form__actions { justify-content: stretch; }
+  .patient-form__actions > * { flex: 1; }
+}

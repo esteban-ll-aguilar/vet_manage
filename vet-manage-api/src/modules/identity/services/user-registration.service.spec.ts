@@ -41,8 +41,9 @@ function build() {
   const hasher = { hash: vi.fn(async (password: string) => `hash:${password}`) };
   const mail = { send: vi.fn(async () => undefined) };
   const config = { get: vi.fn(() => 'http://localhost:5174') };
-  const service = new UserRegistrationService(prisma as never, hasher as never, mail as never, config as never);
-  return { service, tx, prisma, hasher, mail };
+  const audit = { record: vi.fn(async () => undefined) };
+  const service = new UserRegistrationService(prisma as never, hasher as never, mail as never, config as never, audit as never);
+  return { service, tx, prisma, hasher, mail, audit };
 }
 
 async function rejection(promise: Promise<unknown>): Promise<ApiException> {
@@ -89,6 +90,58 @@ describe('UserRegistrationService', () => {
     it('acepta el teléfono vacío', async () => {
       await ctx.service.register({ ...valid, phone: '  ' }, 'admin-1');
       expect(ctx.tx.person.create.mock.calls[0][0].data.phone).toBeNull();
+    });
+  });
+
+  describe('auditoría', () => {
+    it('registra la acción en la transacción con el Administrador como actor', async () => {
+      await ctx.service.register(valid, 'admin-1');
+
+      expect(ctx.audit.record).toHaveBeenCalledTimes(1);
+      expect(ctx.audit.record).toHaveBeenCalledWith(ctx.tx, {
+        actorId: 'admin-1',
+        action: 'Registrar',
+        module: 'Usuarios',
+        affectedRecord: '1710034065 - María López',
+      });
+    });
+
+    it('también registra la acción cuando se reutiliza una persona existente', async () => {
+      ctx.tx.person.findUnique.mockResolvedValue({
+        id: 'p9',
+        identification: valid.identification,
+        firstName: 'Ana',
+        lastName: 'Ruiz',
+        email: 'ana@cliente.com',
+        phone: null,
+        user: { id: 'u9', password: 'hash-actual', status: 'ACTIVE', userRoles: [{ role: { category: 'CLIENT' } }] },
+      });
+
+      await ctx.service.register({ ...valid, roles: ['cashier'] }, 'admin-1');
+
+      expect(ctx.audit.record).toHaveBeenCalledWith(
+        ctx.tx,
+        expect.objectContaining({ module: 'Usuarios', affectedRecord: '1710034065 - Ana Ruiz' }),
+      );
+    });
+
+    it('no registra nada cuando el registro se rechaza', async () => {
+      ctx.tx.person.findUnique.mockResolvedValue({
+        id: 'p9',
+        identification: valid.identification,
+        user: { id: 'u9', password: 'hash', status: 'ACTIVE', userRoles: [{ role: { category: 'STAFF' } }] },
+      });
+
+      await rejection(ctx.service.register(valid, 'admin-1'));
+
+      expect(ctx.audit.record).not.toHaveBeenCalled();
+    });
+
+    it('falla el registro si no se puede guardar la auditoría', async () => {
+      ctx.audit.record.mockRejectedValue(new Error('fallo de auditoría'));
+
+      await expect(ctx.service.register(valid, 'admin-1')).rejects.toThrow('fallo de auditoría');
+      expect(ctx.mail.send).not.toHaveBeenCalled();
     });
   });
 

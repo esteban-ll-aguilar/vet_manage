@@ -1,10 +1,19 @@
 import { getJson, patchJson, postJson } from '../../../infrastructure/api/http-client';
-import type { CatalogItem, Product, ProductDraft } from '../types';
+import type { BatchEntryDraft, BatchEntryResult, CatalogItem, ExpirationAlert, Product, ProductDraft } from '../types';
 
 export const inventoryApi = {
   listProducts(search = '') {
     const query = search.trim() ? `?search=${encodeURIComponent(search.trim())}` : '';
     return getJson<Product[]>(`/inventory/products${query}`);
+  },
+  listExpirationAlerts() {
+    return getJson<ExpirationAlert[]>('/inventory/expiration-alerts');
+  },
+  updateBatchExpiration(id: string, expirationDate: string) {
+    return patchJson<{ lotId: string; expirationDate: string }, { expirationDate: string }>(
+      `/inventory/batches/${id}/expiration-date`,
+      { expirationDate },
+    );
   },
   getProduct(id: string) {
     return getJson<Product>(`/inventory/products/${id}`);
@@ -35,5 +44,8 @@ export const inventoryApi = {
   },
   updateBrand(id: string, input: { name: string; description?: string }) {
     return patchJson<CatalogItem, { name: string; description?: string }>(`/inventory/brands/${id}`, input);
+  },
+  registerBatchEntry(draft: BatchEntryDraft) {
+    return postJson<BatchEntryResult, BatchEntryDraft>('/inventory/batches', draft);
   },
 };

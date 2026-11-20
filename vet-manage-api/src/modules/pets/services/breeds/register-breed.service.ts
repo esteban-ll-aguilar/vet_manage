@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ApiException } from '../../../../common/errors/api-exception.js';
+import { PrismaService } from '../../../../infrastructure/database/prisma/prisma.service.js';
+import { AUDIT_ACTIONS, AUDIT_MODULES } from '../../../audit/audit.catalog.js';
+import { AuditService } from '../../../audit/services/audit.service.js';
 import { BreedRepository } from '../../repositories/breed.repository.js';
 import { SpeciesRepository } from '../../repositories/species.repository.js';
 import { RegisterBreedDto } from '../../dtos/breeds/register-breed.dto.js';
@@ -14,9 +17,11 @@ export class RegisterBreedService {
   constructor(
     private readonly breedRepository: BreedRepository,
     private readonly speciesRepository: SpeciesRepository,
+    private readonly prisma: PrismaService,
+    private readonly audit: AuditService,
   ) {}
 
-  async execute(dto: RegisterBreedDto): Promise<Breed> {
+  async execute(dto: RegisterBreedDto, actorId: string): Promise<Breed> {
     // Normaliza el nombre antes de validar
     const name = dto.name?.trim();
     if (!name) {
@@ -40,7 +45,19 @@ export class RegisterBreedService {
 
     // Cubre la condición de carrera si otro registro se crea entre la consulta y el insert
     try {
-      return await this.breedRepository.create({ name, speciesId: species.id, description: dto.description });
+      return await this.prisma.$transaction(async (tx) => {
+        const created = await this.breedRepository.create(
+          { name, speciesId: species.id, description: dto.description },
+          tx,
+        );
+        await this.audit.record(tx, {
+          actorId,
+          action: AUDIT_ACTIONS.register,
+          module: AUDIT_MODULES.breeds,
+          affectedRecord: `${created.name} (${species.name})`,
+        });
+        return created;
+      });
     } catch (error) {
       if (isUniqueViolation(error)) throw ApiException.conflict(duplicateMessage);
       throw error;

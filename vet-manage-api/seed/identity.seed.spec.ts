@@ -8,6 +8,7 @@ import { isValidIdentification } from '../src/common/validation/identification.j
 import { DEMO_PASSWORD, IDENTITY_DEMO, seedIdentity } from './identity.seed.js';
 
 const ROLE_NAMES = [
+  'superadmin',
   'manager',
   'veterinarian',
   'veterinary_technician',

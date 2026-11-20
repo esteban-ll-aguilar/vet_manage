@@ -6,6 +6,9 @@ import { isValidIdentification } from '../../../common/validation/identification
 import { PrismaService } from '../../../infrastructure/database/prisma/prisma.service.js';
 import { MailService } from '../../../infrastructure/mail/mail.service.js';
 import { renderCredentialsEmail } from '../../../infrastructure/mail/templates/credentials-email.js';
+import { AUDIT_ACTIONS, AUDIT_MODULES } from '../../audit/audit.catalog.js';
+import { describePerson } from '../../audit/describe-person.js';
+import { AuditService } from '../../audit/services/audit.service.js';
 import type { RegisterUserDto } from '../dtos/register-user.dto.js';
 import { PasswordHasher } from './password-hasher.service.js';
 import { generateTemporaryPassword } from './temporary-password.js';
@@ -65,6 +68,7 @@ export class UserRegistrationService {
     private readonly hasher: PasswordHasher,
     private readonly mail: MailService,
     private readonly config: ConfigService,
+    private readonly audit: AuditService,
   ) {}
 
   // Roles activos del personal que se pueden asignar al registrar un usuario.
@@ -181,6 +185,12 @@ export class UserRegistrationService {
     }
 
     await this.assignRoles(tx, user.id, roles, assignedById, now);
+    await this.audit.record(tx, {
+      actorId: assignedById,
+      action: AUDIT_ACTIONS.register,
+      module: AUDIT_MODULES.users,
+      affectedRecord: describePerson(person),
+    });
 
     return { person, user, passwordAssigned, existingPerson: Boolean(found) };
   }

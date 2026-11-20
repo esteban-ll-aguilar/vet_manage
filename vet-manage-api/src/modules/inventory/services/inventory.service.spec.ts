@@ -48,6 +48,9 @@ function createPrismaMock() {
         }),
       },
     },
+    batch: {
+      findMany: vi.fn().mockResolvedValue([]),
+    },
   };
 }
 
@@ -182,5 +185,125 @@ describe('InventoryService', () => {
       code: 'PR-001', name: 'Producto', unitPrice: 20,
       category: { id: 'category-1' }, brand: { id: 'brand-1' },
     })).rejects.toMatchObject({ statusCode: 404, message: 'Producto no encontrado' });
+  });
+
+  it('queries current batches with positive availability and maps the current quantities into alerts', async () => {
+    const referenceDate = new Date('2026-11-19T12:00:00.000Z');
+    const batchFindMany = vi.fn().mockResolvedValue([{
+      id: 'lot-1',
+      code: 'L-2026-001',
+      expirationDate: new Date('2026-12-19T00:00:00.000Z'),
+      availableQuantity: 10,
+      product: { name: 'Alimento para perro' },
+    }]);
+    const service = new InventoryService({ batch: { findMany: batchFindMany } } as never);
+
+    await expect(service.listExpirationAlerts(referenceDate)).resolves.toMatchObject([{
+      lotId: 'lot-1',
+      productName: 'Alimento para perro',
+      lotCode: 'L-2026-001',
+      expirationDate: '2026-12-19',
+      availableQuantity: 10,
+      label: 'Próximo a caducar',
+    }]);
+    expect(batchFindMany).toHaveBeenCalledWith({
+      where: {
+        availableQuantity: { gt: 0 },
+        expirationDate: { lte: new Date('2026-12-19T00:00:00.000Z') },
+      },
+      include: { product: { select: { name: true } } },
+      orderBy: [{ expirationDate: 'asc' }, { code: 'asc' }],
+    });
+  });
+
+  it('updates a batch expiry as a date-only value', async () => {
+    const batchUpdate = vi.fn().mockResolvedValue({ id: 'lot-1', expirationDate: new Date('2027-01-03T00:00:00.000Z') });
+    const service = new InventoryService({ batch: { update: batchUpdate } } as never);
+
+    await expect(service.updateBatchExpiration('lot-1', '2027-01-03')).resolves.toEqual({
+      lotId: 'lot-1', expirationDate: '2027-01-03',
+    });
+    expect(batchUpdate).toHaveBeenCalledWith({
+      where: { id: 'lot-1' },
+      data: { expirationDate: new Date('2027-01-03T00:00:00.000Z') },
+      select: { id: true, expirationDate: true },
+    });
+  });
+
+  it('rejects invalid expiry dates and returns not found for a missing batch', async () => {
+    const batchUpdate = vi.fn().mockRejectedValue({ code: 'P2025' });
+    const service = new InventoryService({ batch: { update: batchUpdate } } as never);
+
+    await expect(service.updateBatchExpiration('lot-1', '2027-02-30'))
+      .rejects.toMatchObject({ statusCode: 400, message: 'La fecha de caducidad no es válida' });
+    expect(batchUpdate).not.toHaveBeenCalled();
+
+    await expect(service.updateBatchExpiration('missing', '2027-01-03'))
+      .rejects.toMatchObject({ statusCode: 404, message: 'Lote no encontrado' });
+  });
+
+  describe('registerBatchEntry (HU-02)', () => {
+    const PRODUCT_ID = '123e4567-e89b-12d3-a456-426614174000';
+    const entry = { productId: PRODUCT_ID, code: 'L-2026-001', expirationDate: '2027-10-23', initialQuantity: 50 };
+
+    function createBatchMock() {
+      const tx = {
+        product: {
+          findFirst: vi.fn().mockResolvedValue({ id: PRODUCT_ID }),
+          update: vi.fn().mockResolvedValue({ id: PRODUCT_ID, code: 'PR-001', name: 'Alimento para perro', stock: 50 }),
+        },
+        batch: {
+          create: vi.fn().mockImplementation(({ data }) => Promise.resolve({ id: 'batch-1', ...data })),
+        },
+      };
+      return { tx, prisma: { $transaction: vi.fn((callback) => callback(tx)) } };
+    }
+
+    it('registers the batch and increments the product stock in one transaction', async () => {
+      const { prisma, tx } = createBatchMock();
+      const service = new InventoryService(prisma as never);
+
+      const result = await service.registerBatchEntry(entry);
+
+      expect(tx.batch.create).toHaveBeenCalledWith({
+        data: {
+          productId: PRODUCT_ID,
+          code: 'L-2026-001',
+          expirationDate: new Date(Date.UTC(2027, 9, 23)),
+          initialQuantity: 50,
+          availableQuantity: 50,
+        },
+      });
+      expect(tx.product.update).toHaveBeenCalledWith(expect.objectContaining({
+        where: { id: PRODUCT_ID },
+        data: { stock: { increment: 50 } },
+      }));
+      expect(result.batch).toMatchObject({
+        code: 'L-2026-001', expirationDate: '2027-10-23', initialQuantity: 50, availableQuantity: 50,
+      });
+      expect(result.product.stock).toBe(50);
+    });
+
+    it('rejects invalid data without opening a transaction', async () => {
+      const { prisma } = createBatchMock();
+      const service = new InventoryService(prisma as never);
+
+      await expect(service.registerBatchEntry({ ...entry, initialQuantity: 0 }))
+        .rejects.toMatchObject({ statusCode: 400, message: 'La cantidad inicial debe ser mayor que cero' });
+      await expect(service.registerBatchEntry({}))
+        .rejects.toMatchObject({ statusCode: 400, message: 'Revisa los datos de la entrada de lote' });
+      expect(prisma.$transaction).not.toHaveBeenCalled();
+    });
+
+    it('does not create the batch nor touch stock when the product does not exist', async () => {
+      const { prisma, tx } = createBatchMock();
+      tx.product.findFirst.mockResolvedValue(null);
+      const service = new InventoryService(prisma as never);
+
+      await expect(service.registerBatchEntry(entry))
+        .rejects.toMatchObject({ statusCode: 404, message: 'El producto seleccionado no existe' });
+      expect(tx.batch.create).not.toHaveBeenCalled();
+      expect(tx.product.update).not.toHaveBeenCalled();
+    });
   });
 });

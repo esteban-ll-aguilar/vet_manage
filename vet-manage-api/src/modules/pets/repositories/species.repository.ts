@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../infrastructure/database/prisma/prisma.service.js';
-import type { Species } from '../../../generated/prisma/client.js';
+import type { Prisma, Species } from '../../../generated/prisma/client.js';
 
 @Injectable()
 export class SpeciesRepository {
@@ -23,8 +23,8 @@ export class SpeciesRepository {
     });
   }
 
-  async create(data: { name: string; description?: string | null }): Promise<Species> {
-    return this.prisma.species.create({
+  async create(data: { name: string; description?: string | null }, tx?: Prisma.TransactionClient): Promise<Species> {
+    return (tx ?? this.prisma).species.create({
       data: {
         name: data.name.trim(),
         description: data.description ? data.description.trim() : null,

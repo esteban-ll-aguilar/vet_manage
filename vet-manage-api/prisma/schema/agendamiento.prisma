@@ -1,0 +1,236 @@
+
+enum TipoSala {
+  CONSULTORIO
+  QUIROFANO
+}
+
+enum DiaSemana {
+  LUNES
+  MARTES
+  MIERCOLES
+  JUEVES
+  VIERNES
+  SABADO
+  DOMINGO
+}
+
+enum TipoCita {
+  CONSULTA
+  CIRUGIA
+  EMERGENCIA
+}
+
+enum EstadoCita {
+  PROGRAMADA
+  CONFIRMADA
+  EN_CURSO
+  FINALIZADA
+  CANCELADA
+  NO_ASISTIO
+}
+
+enum TipoCancelacion {
+  ORDINARIA
+  EXCEPCIONAL
+}
+
+// Sucursal
+model Sucursal {
+  id            String   @id @default(uuid()) @db.Uuid
+  nombre        String   @unique @db.VarChar(100)
+  estado        Boolean  @default(true)
+  creadoEn      DateTime @default(now()) @map("creado_en")
+  actualizadoEn DateTime @updatedAt @map("actualizado_en")
+
+  salas          Sala[]
+  tarifas        Tarifa[]
+  horariosBase   HorarioBase[]
+  turnosSabado   TurnoSabado[]
+  bloqueos       BloqueoHorario[]
+
+  @@map("sucursales")
+}
+
+// Sala: consultorio o quirófano de una sucursal
+model Sala {
+  id            String   @id @default(uuid()) @db.Uuid
+  sucursalId    String   @map("sucursal_id") @db.Uuid
+  nombre        String   @db.VarChar(100)
+  tipo          TipoSala @default(CONSULTORIO)
+  // true = activa
+  estado        Boolean  @default(true)
+  creadoEn      DateTime @default(now()) @map("creado_en")
+  actualizadoEn DateTime @updatedAt @map("actualizado_en")
+
+  sucursal Sucursal @relation(fields: [sucursalId], references: [id], onDelete: Restrict)
+  citas    Cita[]
+
+  @@unique([sucursalId, nombre])
+  @@index([sucursalId, tipo, estado])
+  @@map("salas")
+}
+
+// Servicio que se agenda (consulta general, procedimientos...).
+// La relación opcional con Procedimiento (Módulo 1) se agrega cuando exista.
+model Servicio {
+  id                String   @id @default(uuid()) @db.Uuid
+  nombre            String   @unique @db.VarChar(150)
+  // Duración máxima en minutos; múltiplo de 30.
+  duracionMaximaMin Int      @map("duracion_maxima_min")
+  estado            Boolean  @default(true)
+  creadoEn          DateTime @default(now()) @map("creado_en")
+  actualizadoEn     DateTime @updatedAt @map("actualizado_en")
+
+  tarifas Tarifa[]
+  citas   Cita[]
+
+  @@index([estado])
+  @@map("servicios")
+}
+
+// Tarifa de un servicio en una sucursal.
+// Un cambio de precio inactiva la tarifa vigente y crea otra, así queda el
+// historial. Solo una tarifa activa por servicio y sucursal (validado en una
+// transacción). Cada cita guarda su propio importeReserva.
+model Tarifa {
+  id            String   @id @default(uuid()) @db.Uuid
+  servicioId    String   @map("servicio_id") @db.Uuid
+  sucursalId    String   @map("sucursal_id") @db.Uuid
+  importe       Decimal  @db.Decimal(12, 2)
+  fechaVigencia DateTime @default(now()) @map("fecha_vigencia")
+  // true = activa
+  estado        Boolean  @default(true)
+  creadoEn      DateTime @default(now()) @map("creado_en")
+  actualizadoEn DateTime @updatedAt @map("actualizado_en")
+
+  servicio Servicio @relation(fields: [servicioId], references: [id], onDelete: Restrict)
+  sucursal Sucursal @relation(fields: [sucursalId], references: [id], onDelete: Restrict)
+
+  @@index([servicioId, sucursalId, estado])
+  @@map("tarifas")
+}
+
+// Jornada autorizada de un veterinario en una sucursal.
+// Horas en punto o y media, sin cruces con otra jornada del mismo
+// veterinario en ninguna sucursal.
+model HorarioBase {
+  id            String    @id @default(uuid()) @db.Uuid
+  veterinarioId String    @map("veterinario_id") @db.Uuid
+  sucursalId    String    @map("sucursal_id") @db.Uuid
+  diaSemana     DiaSemana @map("dia_semana")
+  horaInicio    DateTime  @map("hora_inicio") @db.Time(0)
+  horaFin       DateTime  @map("hora_fin") @db.Time(0)
+  // true = vigente
+  estado        Boolean   @default(true)
+  creadoEn      DateTime  @default(now()) @map("creado_en")
+  actualizadoEn DateTime  @updatedAt @map("actualizado_en")
+
+  veterinario             User                   @relation("HorarioBaseVeterinario", fields: [veterinarioId], references: [id], onDelete: Restrict)
+  sucursal                Sucursal               @relation(fields: [sucursalId], references: [id], onDelete: Restrict)
+  disponibilidadesDiarias DisponibilidadDiaria[]
+  turnosSabado            TurnoSabado[]
+
+  @@index([veterinarioId, diaSemana, estado])
+  @@index([sucursalId, diaSemana])
+  @@map("horarios_base")
+}
+
+// Franja que el veterinario habilita para una fecha dentro de su horario
+// Sin registros para una fecha = se usa toda la jornada.
+model DisponibilidadDiaria {
+  id            String   @id @default(uuid()) @db.Uuid
+  horarioBaseId String   @map("horario_base_id") @db.Uuid
+  fecha         DateTime @db.Date
+  horaInicio    DateTime @map("hora_inicio") @db.Time(0)
+  horaFin       DateTime @map("hora_fin") @db.Time(0)
+  creadoEn      DateTime @default(now()) @map("creado_en")
+  actualizadoEn DateTime @updatedAt @map("actualizado_en")
+
+  horarioBase HorarioBase @relation(fields: [horarioBaseId], references: [id], onDelete: Restrict)
+
+  @@index([horarioBaseId, fecha])
+  @@map("disponibilidades_diarias")
+}
+
+// Turno de sábado: un único veterinario por sucursal y sábado.
+// Apunta a un horario base de sábado; sucursalId se repite para garantizar
+// la unicidad en la base de datos.
+model TurnoSabado {
+  id            String   @id @default(uuid()) @db.Uuid
+  horarioBaseId String   @map("horario_base_id") @db.Uuid
+  sucursalId    String   @map("sucursal_id") @db.Uuid
+  fecha         DateTime @db.Date
+  // Obligatoria solo cuando se sustituye al veterinario propuesto.
+  justificacion String?  @db.Text
+  creadoEn      DateTime @default(now()) @map("creado_en")
+  actualizadoEn DateTime @updatedAt @map("actualizado_en")
+
+  horarioBase HorarioBase @relation(fields: [horarioBaseId], references: [id], onDelete: Restrict)
+  sucursal    Sucursal    @relation(fields: [sucursalId], references: [id], onDelete: Restrict)
+
+  @@unique([sucursalId, fecha])
+  @@index([horarioBaseId])
+  @@map("turnos_sabado")
+}
+
+// veterinarioId nulo = bloquea toda la sucursal.
+// Eliminar es lógico: se llenan fechaEliminacion y eliminadoPorId.
+model BloqueoHorario {
+  id               String    @id @default(uuid()) @db.Uuid
+  sucursalId       String    @map("sucursal_id") @db.Uuid
+  veterinarioId    String?   @map("veterinario_id") @db.Uuid
+  fecha            DateTime  @db.Date
+  horaInicio       DateTime  @map("hora_inicio") @db.Time(0)
+  horaFin          DateTime  @map("hora_fin") @db.Time(0)
+  motivo           String    @db.Text
+  registradoPorId  String    @map("registrado_por_id") @db.Uuid
+  eliminadoPorId   String?   @map("eliminado_por_id") @db.Uuid
+  fechaEliminacion DateTime? @map("fecha_eliminacion")
+  creadoEn         DateTime  @default(now()) @map("creado_en")
+  actualizadoEn    DateTime  @updatedAt @map("actualizado_en")
+
+  sucursal      Sucursal @relation(fields: [sucursalId], references: [id], onDelete: Restrict)
+  veterinario   User?    @relation("BloqueoHorarioVeterinario", fields: [veterinarioId], references: [id], onDelete: Restrict)
+  registradoPor User     @relation("BloqueoHorarioRegistradoPor", fields: [registradoPorId], references: [id], onDelete: Restrict)
+  eliminadoPor  User?    @relation("BloqueoHorarioEliminadoPor", fields: [eliminadoPorId], references: [id], onDelete: Restrict)
+
+  @@index([sucursalId, fecha, fechaEliminacion])
+  @@index([veterinarioId, fecha])
+  @@map("bloqueos_horario")
+}
+
+// Cita: consulta, cirugía (reserva de quirófano) o emergencia.
+// La sucursal se obtiene de la sala y el cliente, del paciente.
+model Cita {
+  id                  String           @id @default(uuid()) @db.Uuid
+  // Número único visible para el usuario.
+  numero              Int              @unique @default(autoincrement())
+  tipo                TipoCita         @default(CONSULTA)
+  fechaHora           DateTime         @map("fecha_hora")
+  fechaHoraFin        DateTime         @map("fecha_hora_fin")
+  motivo              String?          @db.Text
+  estado              EstadoCita       @default(PROGRAMADA)
+  // Tarifa vigente al registrar la cita; 0 en emergencias.
+  importeReserva      Decimal          @map("importe_reserva") @db.Decimal(12, 2)
+  tipoCancelacion     TipoCancelacion? @map("tipo_cancelacion")
+  asistenciaDeclarada DateTime?        @map("asistencia_declarada")
+  pacienteId          String           @map("paciente_id") @db.Uuid
+  salaId              String           @map("sala_id") @db.Uuid
+  servicioId          String?          @map("servicio_id") @db.Uuid
+  veterinarioId       String           @map("veterinario_id") @db.Uuid
+  registradaPorId     String           @map("registrada_por_id") @db.Uuid
+  creadoEn            DateTime         @default(now()) @map("creado_en")
+  actualizadoEn       DateTime         @updatedAt @map("actualizado_en")
+
+  paciente      Patient   @relation(fields: [pacienteId], references: [id], onDelete: Restrict)
+  sala          Sala      @relation(fields: [salaId], references: [id], onDelete: Restrict)
+  servicio      Servicio? @relation(fields: [servicioId], references: [id], onDelete: Restrict)
+  veterinario   User      @relation("CitaVeterinario", fields: [veterinarioId], references: [id], onDelete: Restrict)
+  registradaPor User      @relation("CitaRegistradaPor", fields: [registradaPorId], references: [id], onDelete: Restrict)
+
+  @@index([veterinarioId, fechaHora])
+  @@index([salaId, fechaHora])
+  @@index([pacienteId, fechaHora])
+  @@index([estado])
+  @@map("citas")
+}
