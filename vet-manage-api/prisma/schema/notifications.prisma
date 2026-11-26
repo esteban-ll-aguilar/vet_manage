@@ -1,0 +1,48 @@
+enum NotificationPriority {
+  CRITICA
+  ALTA
+  MEDIA
+  BAJA
+}
+
+model NotificationType {
+  id           String   @id @default(uuid()) @db.Uuid
+  code         String   @unique @db.VarChar(50)
+  name         String   @db.VarChar(150)
+  description  String?  @db.Text
+  rolesDestino String[]
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  notifications Notification[]
+
+  @@index([isActive])
+  @@map("notification_types")
+}
+
+model Notification {
+  id           String               @id @default(uuid()) @db.Uuid
+  userId       String               @map("user_id") @db.Uuid
+  typeId       String               @map("type_id") @db.Uuid
+  tipoEntidad  String               @map("entity_type") @db.VarChar(50)
+  entidadId    String               @map("entity_id") @db.VarChar(100)
+  titulo       String               @db.VarChar(150)
+  mensaje      String               @db.Text
+  detalle      String?              @db.Text
+  prioridad    NotificationPriority @default(MEDIA)
+  fechaEmitida DateTime             @default(now()) @map("issued_at")
+  fechaLectura DateTime?            @map("read_at")
+  leida        Boolean              @default(false)
+  createdAt    DateTime             @default(now()) @map("created_at")
+  updatedAt    DateTime             @updatedAt @map("updated_at")
+
+  user User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type NotificationType @relation(fields: [typeId], references: [id], onDelete: Restrict)
+
+  @@index([userId, leida])
+  @@index([userId, fechaEmitida])
+  @@index([tipoEntidad, entidadId])
+  @@index([typeId])
+  @@map("notifications")
+}

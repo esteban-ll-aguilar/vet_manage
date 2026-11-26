@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { ApiError } from '../../infrastructure/api/http-client';
-import { describeApiError, MAIL_FAILED, MISSING_FIELDS, registrationOutcome, validateRegistration } from './form-rules';
+import {
+  buildUserUpdateInput, describeApiError, INVALID_FORMAT, MAIL_FAILED, MISSING_FIELDS, registrationOutcome, sanitizePhone,
+  toEditForm,
+  validateRegistration, validateUserUpdate,
+} from './form-rules';
 import type { Form } from './form-rules';
 
 const valid: Form = {
@@ -88,5 +92,71 @@ describe('registrationOutcome', () => {
 
     expect(outcome.type).toBe('success');
     expect(outcome.message).toContain('La persona ya existía');
+  });
+});
+
+describe('validateUserUpdate (HU-53)', () => {
+  const edit = { firstName: 'Carlos', lastName: 'Pérez', email: 'cperez@correo.com', phone: '0991111111' };
+
+  it('no reporta errores con datos válidos y el teléfono vacío', () => {
+    expect(validateUserUpdate(edit)).toEqual({ errors: {}, missing: false });
+    expect(validateUserUpdate({ ...edit, phone: '' })).toEqual({ errors: {}, missing: false });
+  });
+
+  it('marca el nombre vacío con "Complete los campos obligatorios"', () => {
+    const result = validateUserUpdate({ ...edit, firstName: '  ' });
+
+    expect(result.missing).toBe(true);
+    expect(result.errors).toEqual({ firstName: 'Complete los campos obligatorios' });
+  });
+
+  it.each([[{ email: 'carlos@' }, 'email'], [{ phone: '0991' }, 'phone'], [{ lastName: 'P'.repeat(101) }, 'lastName']])(
+    'marca %j con "Formato no válido"',
+    (override, field) => {
+      expect(validateUserUpdate({ ...edit, ...override }).errors).toEqual({ [field]: INVALID_FORMAT });
+    },
+  );
+});
+
+describe('buildUserUpdateInput y toEditForm (HU-53)', () => {
+  it('recorta los datos', () => {
+    expect(buildUserUpdateInput({ firstName: ' Carlos ', lastName: 'Pérez ', email: ' c@x.com', phone: ' ' }))
+      .toEqual({ firstName: 'Carlos', lastName: 'Pérez', email: 'c@x.com', phone: '' });
+  });
+
+  it('llena el formulario sin nulos', () => {
+    expect(toEditForm({ firstName: 'Carlos', lastName: 'Pérez', email: 'c@x.com', phone: null }))
+      .toEqual({ firstName: 'Carlos', lastName: 'Pérez', email: 'c@x.com', phone: '' });
+  });
+});
+
+describe('describeApiError en la edición (HU-53)', () => {
+  it('resalta los campos que rechaza la API', () => {
+    const invalid = new ApiError('Formato no válido', 400, { code: 'USER_INVALID_PHONE', errors: ['phone'] });
+    const taken = new ApiError('El correo ya se encuentra registrado', 409, { code: 'USER_EMAIL_TAKEN', errors: ['email'] });
+
+    expect(describeApiError(invalid).errors).toEqual({ phone: 'Formato no válido' });
+    expect(describeApiError(taken).errors).toEqual({ email: 'El correo ya se encuentra registrado' });
+  });
+
+  it('muestra el rechazo de un usuario dado de baja sin resaltar campos', () => {
+    const deactivated = new ApiError('No se puede actualizar un usuario dado de baja', 409, { code: 'USER_DEACTIVATED' });
+
+    expect(describeApiError(deactivated)).toEqual({ message: deactivated.message, errors: {} });
+  });
+});
+
+describe('sanitizePhone (HU-53)', () => {
+  it.each([
+    ['09a9b1c', '0991'],
+    ['099 222-2222', '0992222222'],
+    ['+593 99 222 2222', '+593992222222'],
+    ['59+3', '593'],
+    ['++593', '+593'],
+    ['1234567890123456789', '1234567890123456'],
+    ['+12345678901234567', '+123456789012345'],
+    ['abc', ''],
+  ])('convierte %j en %j', (value, expected) => {
+    expect(sanitizePhone(value)).toBe(expected);
   });
 });

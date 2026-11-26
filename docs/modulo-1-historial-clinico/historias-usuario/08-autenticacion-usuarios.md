@@ -696,6 +696,16 @@ Entonces el sistema no debe enviar ningún enlace.
 Y debe mostrar el mismo mensaje "Si el correo está registrado, recibirá un enlace", sin indicar si la cuenta existe.
 ```
 
+#### Escenario 8: Límite de solicitudes de recuperación
+
+```gherkin
+Dado que el Cajero ya solicitó 3 enlaces de recuperación con el correo "ana@correo.com" en los últimos 15 minutos.
+Cuando solicita un cuarto enlace con ese correo.
+Entonces el sistema no debe generar ni enviar un nuevo enlace.
+Y debe mostrar el mismo mensaje "Si el correo está registrado, recibirá un enlace".
+Y podrá solicitar un nuevo enlace cuando hayan pasado 15 minutos desde la primera solicitud.
+```
+
 ---
 
 ## HU-59 · Cambiar contraseña

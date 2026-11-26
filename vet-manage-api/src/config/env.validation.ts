@@ -62,6 +62,12 @@ class EnvironmentVariables {
   SESSION_EXPIRES_IN = '12h';
 
   @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  PASSWORD_RESET_TTL_MINUTES = 30;
+
+  @IsOptional()
   @IsUrl({ protocols: ['http', 'https'], require_tld: false })
   APP_URL = 'http://localhost:5174';
 

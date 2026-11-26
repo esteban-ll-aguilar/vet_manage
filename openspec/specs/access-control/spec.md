@@ -90,6 +90,29 @@ The system SHALL reject with 403 and the message "No tiene permisos para realiza
 - **WHEN** an administrator removes a permission from a role while a user holds a valid token
 - **THEN** the next request of that user to a route requiring it returns 403 without restarting the system
 
+### Requirement: Administrators manage permissions by role
+The system SHALL allow users with `roles:manage-permissions` to view and replace permissions for active, visible roles, using active, visible permissions from the catalog.
+Permission changes SHALL be persisted atomically and SHALL survive RBAC catalog synchronization and application restarts.
+The system SHALL reject permission-management requests without `roles:manage-permissions` with 403 and SHALL prevent removing `roles:manage-permissions` or any `users:*` permission from the Administrator role.
+
+#### Scenario: Permission assignment is persisted
+- **WHEN** an Administrator grants a permission to a role and saves
+- **THEN** the role-permission assignment is stored
+- **AND** the next login includes the permission in the user's session when one of the user's active roles grants it
+
+#### Scenario: Administrator safeguards cannot be removed
+- **WHEN** an Administrator attempts to remove `roles:manage-permissions` or a user-management permission from the Administrator role
+- **THEN** the change is rejected with "No se puede retirar este permiso al rol Administrador"
+
+#### Scenario: Unauthorized user cannot manage role permissions
+- **WHEN** an authenticated user without `roles:manage-permissions` requests the role-permission screen or API
+- **THEN** the system denies access with "No tiene permisos para realizar esta acción"
+
+#### Scenario: Unsaved changes are discarded only after confirmation
+- **WHEN** an Administrator leaves the permission screen with unsaved changes
+- **THEN** the system asks "Tiene cambios sin guardar. ¿Desea salir?"
+- **AND** confirming leaves without persisting the draft
+
 ### Requirement: Guards are reusable by other domains
 The system SHALL expose the authentication guard, the permission guard and a `@RequirePermissions` decorator from the identity module, without registering them globally.
 

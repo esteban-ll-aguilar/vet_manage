@@ -4,6 +4,7 @@ const define = (entries: readonly [PermissionDefinition['key'], string][]): read
 
 export const INVENTORY_PERMISSIONS = define([
   ['inventory:read', 'Consultar inventario'],
+  ['inventory:configure-vat', 'Configurar IVA por categoría'],
   ['inventory:manage-products', 'Gestionar productos'],
   ['inventory:manage-categories', 'Gestionar categorías'],
   ['inventory:manage-brands', 'Gestionar marcas'],

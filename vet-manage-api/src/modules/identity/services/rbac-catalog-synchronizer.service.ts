@@ -104,15 +104,16 @@ export class RbacCatalogSynchronizer {
         });
       }
 
-      // Un rol nuevo recibe todos sus permisos; uno existente solo los recién creados (o todos en strict).
-      const keysToGrant = isNewRole || strict
+      // Strict repone el catálogo solo mientras el rol no tenga permisos editados desde la aplicación.
+      const restoreCatalogPermissions = strict && !isNewRole && !role.permissionsCustomized;
+      const keysToGrant = isNewRole || restoreCatalogPermissions
         ? definition.permissions
         : definition.permissions.filter((key) => newPermissionKeys.has(key));
       const desiredIds = new Set(
         keysToGrant.map((key) => permissionIds.get(key)).filter((id): id is string => Boolean(id)),
       );
 
-      if (strict && !isNewRole) {
+      if (restoreCatalogPermissions) {
         const revoked = await tx.rolePermission.deleteMany({
           where: { roleId: role.id, permissionId: { notIn: [...desiredIds] } },
         });

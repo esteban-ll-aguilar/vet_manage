@@ -104,3 +104,38 @@ export const CheckIcon = (props: IconProps) => (
 export const PlusIcon = (props: IconProps) => (
   <Icon {...props}><path d="M12 5v14M5 12h14" /></Icon>
 );
+
+export const BellIcon = (props: IconProps) => (
+  <Icon {...props}><path d="M6 9a6 6 0 0 1 12 0c0 3.6 1.5 5.5 1.5 5.5h-15S6 12.6 6 9Z" /><path d="M10 18a2 2 0 0 0 4 0" /></Icon>
+);
+
+export const ArrowRightIcon = (props: IconProps) => (
+  <Icon {...props}><path d="M4 12h15M13 6l6 6-6 6" /></Icon>
+);
+
+export const ScaleIcon = (props: IconProps) => (
+  <Icon {...props}><rect x="3.5" y="4" width="17" height="16.5" rx="3" /><path d="M8 9.5a5.5 5.5 0 0 1 8 0l-2.2 2.2a2.5 2.5 0 0 0-3.6 0Z" /></Icon>
+);
+
+export const RulerIcon = (props: IconProps) => (
+  <Icon {...props}><rect x="3" y="8" width="18" height="8" rx="1.5" /><path d="M7 8v3M11 8v4M15 8v3M19 8v2" /></Icon>
+);
+
+export const PaletteIcon = (props: IconProps) => (
+  <Icon {...props}>
+    <path d="M12 3.5a8.5 8.5 0 0 0 0 17c1.3 0 1.9-.9 1.6-1.9-.3-1.1.4-2.1 1.5-2.1H17a3.5 3.5 0 0 0 3.5-3.5C20.5 7.6 16.7 3.5 12 3.5Z" />
+    <circle cx="7.8" cy="11" r="1" /><circle cx="10.5" cy="7.5" r="1" /><circle cx="14.8" cy="7.8" r="1" />
+  </Icon>
+);
+
+export const GenderIcon = (props: IconProps) => (
+  <Icon {...props}><circle cx="10" cy="14" r="5" /><path d="M13.5 10.5 20 4M15 4h5v5" /></Icon>
+);
+
+export const SearchIcon = (props: IconProps) => (
+  <Icon {...props}><circle cx="11" cy="11" r="6.5" /><path d="m20 20-4.4-4.4" /></Icon>
+);
+
+export const HeartIcon = (props: IconProps) => (
+  <Icon {...props}><path d="M12 20s-7.5-4.4-7.5-10A4.5 4.5 0 0 1 12 7.2 4.5 4.5 0 0 1 19.5 10c0 5.6-7.5 10-7.5 10Z" /></Icon>
+);

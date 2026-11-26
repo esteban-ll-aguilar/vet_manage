@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react';
 import { StatusDot } from '../../../common/components/status-dot';
 import { getJson } from '../../../infrastructure/api/http-client';
+import { useAuth } from '../../auth/auth-context';
+import { ExpirationAlertsPanel } from '../../inventory/components/expiration-alerts-panel';
+import { inventoryApi } from '../../inventory/services/inventory-api';
+import type { ExpirationAlert } from '../../inventory/types';
 
 type HealthResponse = { status: string };
-type DemoResponse = { success: boolean; message: string; timestamp: string };
 
 const metrics = [
   { label: 'Citas de hoy', value: '12', note: '+3 frente a ayer', tone: 'blue' },
@@ -12,17 +15,42 @@ const metrics = [
 ];
 
 export function DashboardPage() {
+  const { hasPermission } = useAuth();
   const [apiStatus, setApiStatus] = useState<'loading' | 'online' | 'offline'>('loading');
-  const [demoResponse, setDemoResponse] = useState<DemoResponse | null>(null);
+  const [expirationAlerts, setExpirationAlerts] = useState<ExpirationAlert[]>([]);
+  const [expirationAlertsState, setExpirationAlertsState] = useState<'loading' | 'error' | 'success'>('loading');
+  const [expirationAlertsRefreshKey, setExpirationAlertsRefreshKey] = useState(0);
+
+  function refreshExpirationAlerts() {
+    setExpirationAlertsState('loading');
+    setExpirationAlertsRefreshKey((key) => key + 1);
+  }
+
+  async function saveBatchExpiration(lotId: string, expirationDate: string) {
+    await inventoryApi.updateBatchExpiration(lotId, expirationDate);
+    refreshExpirationAlerts();
+  }
 
   useEffect(() => {
-    Promise.all([getJson<HealthResponse>('/health'), getJson<DemoResponse>('/demo')])
-      .then(([health, demo]) => {
-        setApiStatus(health.status === 'ok' && demo.success ? 'online' : 'offline');
-        setDemoResponse(demo);
-      })
+    getJson<HealthResponse>('/health')
+      .then((health) => setApiStatus(health.status === 'ok' ? 'online' : 'offline'))
       .catch(() => setApiStatus('offline'));
   }, []);
+
+  useEffect(() => {
+    let active = true;
+    inventoryApi.listExpirationAlerts()
+      .then((alerts) => {
+        if (!active) return;
+        setExpirationAlerts(alerts);
+        setExpirationAlertsState('success');
+      })
+      .catch(() => {
+        if (active) setExpirationAlertsState('error');
+      });
+
+    return () => { active = false; };
+  }, [expirationAlertsRefreshKey]);
 
   return (
     <div className="dashboard">
@@ -70,17 +98,15 @@ export function DashboardPage() {
         </article>
       </section>
 
-      <section className="integration-card">
-        <div className="integration-icon">✓</div>
-        <div>
-          <span className="eyebrow">Integración en vivo</span>
-          <h3>{demoResponse?.message ?? 'Verificando respuesta de la API...'}</h3>
-          <small>{demoResponse ? `Respuesta recibida: ${new Date(demoResponse.timestamp).toLocaleTimeString()}` : 'Conectando con /api/v1/demo'}</small>
-        </div>
-        <code>GET /api/v1/demo</code>
-      </section>
+      <ExpirationAlertsPanel
+        alerts={expirationAlerts}
+        state={expirationAlertsState}
+        onRefresh={refreshExpirationAlerts}
+        canEdit={hasPermission('inventory:register-entry')}
+        onSaveExpiration={saveBatchExpiration}
+      />
 
-      <footer className="system-status"><StatusDot status={apiStatus} /> API {apiStatus === 'online' ? 'conectada' : apiStatus === 'offline' ? 'no disponible' : 'verificando'} · Fundación lista para el equipo de desarrollo</footer>
+      <footer className="system-status"><StatusDot status={apiStatus} /> API {apiStatus === 'online' ? 'conectada' : apiStatus === 'offline' ? 'no disponible' : 'verificando'}</footer>
     </div>
   );
 }

@@ -37,6 +37,15 @@ describe('validateEnvironment', () => {
     expect(() => validateEnvironment({ ...base, MAIL_FROM: from })).toThrow(/MAIL_FROM/);
   });
 
+  it('usa 30 minutos por defecto para el enlace de recuperación y acepta otro valor (HU-58)', () => {
+    expect(validateEnvironment({ ...base }).PASSWORD_RESET_TTL_MINUTES).toBe(30);
+    expect(validateEnvironment({ ...base, PASSWORD_RESET_TTL_MINUTES: '45' }).PASSWORD_RESET_TTL_MINUTES).toBe(45);
+  });
+
+  it.each([['0'], ['-1'], ['media hora']])('rechaza PASSWORD_RESET_TTL_MINUTES=%s', (value) => {
+    expect(() => validateEnvironment({ ...base, PASSWORD_RESET_TTL_MINUTES: value })).toThrow(/PASSWORD_RESET_TTL_MINUTES/);
+  });
+
   it('rechaza una APP_URL que no es una dirección web', () => {
     expect(() => validateEnvironment({ ...base, APP_URL: 'ftp://clinica' })).toThrow(/APP_URL/);
     expect(validateEnvironment({ ...base, APP_URL: 'https://app.clinica.com' }).APP_URL).toBe('https://app.clinica.com');

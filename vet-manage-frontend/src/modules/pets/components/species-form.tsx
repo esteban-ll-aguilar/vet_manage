@@ -6,11 +6,19 @@ interface SpeciesFormProps {
   onSubmit: (draft: RegisterSpeciesDraft) => Promise<void>;
   onCancel: () => void;
   isLoading?: boolean;
+  initialValue?: { name: string; description?: string | null };
+  submitLabel?: string;
 }
 
-export function SpeciesForm({ onSubmit, onCancel, isLoading = false }: SpeciesFormProps) {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+export function SpeciesForm({
+  onSubmit,
+  onCancel,
+  isLoading = false,
+  initialValue,
+  submitLabel = 'Guardar especie',
+}: SpeciesFormProps) {
+  const [name, setName] = useState(initialValue?.name ?? '');
+  const [description, setDescription] = useState(initialValue?.description ?? '');
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -25,16 +33,18 @@ export function SpeciesForm({ onSubmit, onCancel, isLoading = false }: SpeciesFo
     setError(null);
     try {
       await onSubmit(validation.value);
-      setName('');
-      setDescription('');
+      if (!initialValue) {
+        setName('');
+        setDescription('');
+      }
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Error al registrar la especie');
+      setError(cause instanceof Error ? cause.message : 'Error al guardar la especie');
     }
   };
 
   const handleReset = () => {
-    setName('');
-    setDescription('');
+    setName(initialValue?.name ?? '');
+    setDescription(initialValue?.description ?? '');
     setError(null);
     onCancel();
   };
@@ -75,7 +85,7 @@ export function SpeciesForm({ onSubmit, onCancel, isLoading = false }: SpeciesFo
           Cancelar
         </button>
         <button type="submit" className="button button--primary" disabled={isLoading}>
-          {isLoading ? 'Guardando...' : 'Guardar especie'}
+          {isLoading ? 'Guardando...' : submitLabel}
         </button>
       </div>
     </form>

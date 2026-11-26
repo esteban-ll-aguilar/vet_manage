@@ -1,0 +1,120 @@
+
+.work-schedules-card { overflow: hidden; }
+
+.work-schedules-toolbar { align-items: flex-end; }
+
+.work-schedules-filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(190px, 220px));
+  gap: 10px;
+}
+
+.work-schedules-filters .field { gap: 5px; }
+.work-schedules-filters .field > span { font-size: 10px; }
+.work-schedules-filters select { min-height: 40px; }
+
+.work-schedules-table th { white-space: nowrap; }
+.work-schedules-table td { vertical-align: middle; }
+
+.day-pill {
+  display: inline-flex;
+  min-width: 74px;
+  justify-content: center;
+  padding: 5px 8px;
+  border-radius: 999px;
+  color: #416fe7;
+  background: #edf2ff;
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.time-cell {
+  display: inline-block;
+  min-width: 58px;
+  padding: 6px 8px;
+  border-radius: 7px;
+  color: #26323d;
+  background: #f7f9fb;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  text-align: center;
+}
+
+.work-schedules-actions-heading,
+.work-schedules-actions {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.work-schedules-actions { display: table-cell; }
+.work-schedules-actions .button + .button { margin-left: 7px; }
+
+.work-schedules-empty__icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  color: #4c7dff;
+  background: #edf2ff;
+  font-size: 24px;
+}
+
+.work-schedules-modal { width: min(560px, 100%); }
+
+.work-schedules-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.work-schedules-form-grid__full { grid-column: 1 / -1; }
+
+.work-schedules-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid #eef1f4;
+}
+
+.work-schedules-page .work-schedules-delete {
+  color: #b94d54;
+  border-color: #f1d5d7;
+  background: #fff0f0;
+}
+
+.work-schedules-page .work-schedules-delete:hover,
+.work-schedules-page .work-schedules-delete:active {
+  color: #b94d54;
+  border-color: #f1d5d7;
+  background: #fde7e8;
+}
+
+.work-schedules-page .work-schedules-delete:focus-visible {
+  outline: 2px solid #4c7dff;
+  outline-offset: 2px;
+}
+
+@media (max-width: 900px) {
+  .work-schedules-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .work-schedules-filters {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .work-schedules-filters,
+  .work-schedules-form-grid { grid-template-columns: 1fr; }
+
+  .work-schedules-form-grid__full { grid-column: auto; }
+
+  .work-schedules-modal__actions .button { flex: 1; }
+
+  .work-schedules-table { min-width: 720px; }
+}

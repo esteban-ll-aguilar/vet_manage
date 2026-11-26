@@ -1,14 +1,8 @@
 import { useState } from 'react';
+import { useAuth } from '../../auth/auth-context';
 import { BreedsPage } from '../../pets/pages/breeds-page';
 import { SpeciesPage } from '../../pets/pages/species-page';
-
-type CatalogTab = 'species' | 'breeds' | 'procedures';
-
-const tabs: { id: CatalogTab; label: string }[] = [
-  { id: 'species', label: 'Especies' },
-  { id: 'breeds', label: 'Razas' },
-  { id: 'procedures', label: 'Tipos de procedimiento' },
-];
+import { CATALOG_TABS, type CatalogTab } from '../catalog-tabs';
 
 function ComingSoonCatalog({ title, description }: { title: string; description: string }) {
   return (
@@ -23,10 +17,14 @@ function ComingSoonCatalog({ title, description }: { title: string; description:
 }
 
 export function CatalogsPage() {
-  const [activeTab, setActiveTab] = useState<CatalogTab>('species');
+  const { hasPermission } = useAuth();
+  const tabs = CATALOG_TABS.filter((tab) => hasPermission(tab.permission));
+  const [selectedTab, setSelectedTab] = useState<CatalogTab | null>(null);
+  // Abre la primera pestaña permitida; la ruta ya garantiza que haya al menos una.
+  const activeTab = tabs.some((tab) => tab.id === selectedTab) ? selectedTab : tabs[0]?.id;
 
   return (
-    <section className="inventory-page">
+    <section className="catalogs-page">
       <div className="page-heading">
         <div>
           <span className="eyebrow">Configuración</span>
@@ -45,7 +43,7 @@ export function CatalogsPage() {
             aria-selected={activeTab === tab.id}
             aria-controls={`catalog-panel-${tab.id}`}
             className={activeTab === tab.id ? 'catalogs-tab catalogs-tab--active' : 'catalogs-tab'}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => setSelectedTab(tab.id)}
           >
             {tab.label}
           </button>

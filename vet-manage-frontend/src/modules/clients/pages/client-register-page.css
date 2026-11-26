@@ -1,0 +1,62 @@
+.clients-page { max-width: 1480px; margin: 0 auto; }
+
+.register-form__grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+
+.register-card { padding: 26px 28px; border: 1px solid #e8edf1; border-radius: 15px; background: #fff; box-shadow: 0 4px 14px #1e344108; }
+.register-card__header { display: flex; align-items: center; gap: 13px; margin-bottom: 24px; }
+.register-card__header > div { flex: 1; min-width: 0; }
+.register-card__header h3 { margin: 0 0 3px; color: #26323d; font-size: 16px; }
+.register-card__header p { margin: 0; color: #99a4b0; font-size: 11px; }
+.register-card__icon { display: grid; flex: none; place-items: center; width: 38px; height: 38px; border-radius: 11px; color: #416fe7; background: #edf2ff; }
+.register-card__count { flex: none; padding: 5px 10px; border-radius: 999px; color: #8a96a3; background: #f1f4f7; font-size: 10px; font-weight: 700; transition: .2s ease; }
+.register-card__count--active { color: #416fe7; background: #edf2ff; }
+.register-card__error { display: block; margin-top: 12px; }
+.register-card__hint { margin: 14px 0 0; color: #8a96a3; font-size: 11px; line-height: 1.5; }
+
+.register-card__fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 18px; }
+.register-card__full { grid-column: 1 / -1; }
+
+.input-icon { position: relative; display: block; }
+.input-icon > svg { position: absolute; top: 50%; left: 13px; transform: translateY(-50%); color: #a3aeb9; pointer-events: none; transition: color .2s ease; }
+.input-icon:focus-within > svg { color: #4c7dff; }
+.field .input-icon input { padding: 12px 12px 12px 39px; }
+.field .input-icon input[aria-invalid="true"] ~ svg, .field .input-icon:has(input[aria-invalid="true"]) > svg { color: #de7c82; }
+
+.register-card__note { display: flex; gap: 12px; margin-top: 26px; padding: 14px 16px; border: 1px solid #dce7ff; border-radius: 11px; color: #416fe7; background: #f6f8ff; }
+.register-card__note > svg { flex: none; margin-top: 1px; }
+.register-card__note p { margin: 0; color: #5a6a86; font-size: 11px; line-height: 1.55; }
+.register-card__note strong { color: #3a4f85; }
+
+.role-list { display: grid; gap: 10px; min-width: 0; margin: 0; padding: 0; border: 0; }
+.role-list__status { margin: 0; color: #8a96a3; font-size: 12px; }
+.role-list--invalid .role-card { border-color: #de7c82; }
+
+.role-card { display: flex; align-items: center; gap: 13px; padding: 12px 14px; border: 1px solid #e1e7ed; border-radius: 12px; background: #fff; cursor: pointer; transition: border .2s ease, background .2s ease, box-shadow .2s ease; }
+.role-card:hover { border-color: #b9ccff; }
+.role-card:has(input:focus-visible) { box-shadow: 0 0 0 3px #dce7ff; }
+.role-card__icon { display: grid; flex: none; place-items: center; width: 36px; height: 36px; border-radius: 10px; color: #8a96a3; background: #f1f4f7; transition: .2s ease; }
+.role-card__text { flex: 1; min-width: 0; }
+.role-card__text b { display: block; color: #26323d; font-size: 12px; }
+.role-card__text small { display: block; margin-top: 3px; color: #8a96a3; font-size: 10px; line-height: 1.4; }
+.role-card__check { display: grid; flex: none; place-items: center; width: 22px; height: 22px; border: 1.5px solid #d3dae1; border-radius: 50%; color: transparent; transition: .2s ease; }
+.role-card--selected { border-color: #7d9fff; background: #f4f7ff; }
+.role-card--selected .role-card__icon { color: #416fe7; background: #dce7ff; }
+.role-card--selected .role-card__check { border-color: #4c7dff; color: #fff; background: #4c7dff; }
+.role-card--fixed { cursor: default; }
+.role-card--fixed:hover { border-color: #7d9fff; }
+
+.register-form__actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+@media (max-width: 1100px) {
+  .register-form__grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .register-card { padding: 22px 18px; }
+  .register-card__fields { grid-template-columns: 1fr; }
+  .register-card__header { flex-wrap: wrap; }
+  .register-form__actions { justify-content: stretch; }
+  .register-form__actions > * { flex: 1; }
+}

@@ -1,0 +1,56 @@
+.my-availability-page .form-problem {
+  margin: 0 0 18px;
+  padding: 13px 15px;
+  border: 1px solid #f3c9cc;
+  border-radius: 9px;
+  color: #b94d54;
+  background: #fff6f6;
+  font-size: 12px;
+}
+
+.my-availability-page .form-problem ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  color: #8f3f45;
+}
+
+.my-availability-page .form-problem li + li { margin-top: 4px; }
+
+.availability-slot-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(150px, 190px)) auto;
+  align-items: end;
+  gap: 10px;
+  padding: 18px 0 4px;
+}
+
+.availability-slot-form .field { gap: 5px; }
+.availability-slot-form .field > span { font-size: 10px; }
+
+.availability-slot-form .button {
+  align-self: end;
+  min-height: 40px;
+}
+
+.my-availability-page .field-error {
+  display: block;
+  margin: 0 0 12px;
+  color: #b94d54;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.availability-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid #eef1f4;
+}
+
+@media (max-width: 640px) {
+  .availability-slot-form { grid-template-columns: 1fr; }
+  .availability-actions { flex-direction: column; }
+  .availability-actions .button { width: 100%; }
+}

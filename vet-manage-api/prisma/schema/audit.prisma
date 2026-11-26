@@ -1,0 +1,19 @@
+// Registro de solo lectura de las acciones de los usuarios; la base rechaza modificarlo o eliminarlo.
+model AuditLog {
+  id             String   @id @default(uuid()) @db.Uuid
+  occurredAt     DateTime @default(now()) @map("occurred_at")
+  userId         String   @map("user_id") @db.Uuid
+  role           String   @db.VarChar(255)
+  action         String   @db.VarChar(50)
+  module         String   @db.VarChar(50)
+  affectedRecord String   @map("affected_record") @db.VarChar(255)
+  previousValue  Json?    @map("previous_value")
+  newValue       Json?    @map("new_value")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([occurredAt])
+  @@index([userId])
+  @@index([module, action])
+  @@map("audit_logs")
+}

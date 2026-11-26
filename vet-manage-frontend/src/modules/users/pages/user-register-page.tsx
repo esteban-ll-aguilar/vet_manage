@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
-import type { FormEvent, ReactNode } from 'react';
+import type { FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   CalendarIcon, CheckIcon, IdCardIcon, InfoIcon, MailIcon, PackageIcon, PawIcon, PhoneIcon, ShieldIcon, UserIcon, UsersIcon, WalletIcon,
 } from '../../../common/components/icons';
 import { useToast } from '../../../common/components/toast-context';
-import { describeApiError, MISSING_FIELDS, registrationOutcome, validateRegistration } from '../form-rules';
+import { UserField as Field } from '../components/user-field';
+import {
+  describeApiError, MISSING_FIELDS, registrationOutcome, sanitizePhone, USER_FIELD_LIMITS, validateRegistration,
+} from '../form-rules';
 import type { FieldErrors, FieldName, Form } from '../form-rules';
 import { usersApi } from '../services/users-api';
 import type { AssignableRole } from '../types';
@@ -113,8 +116,8 @@ export function UserRegisterPage() {
                   aria-invalid={Boolean(errors.identification)} onChange={(event) => update('identification', event.target.value.replace(/\D/g, ''))} />
               </Field>
               <Field label="Teléfono" hint="Opcional" error={errors.phone} icon={<PhoneIcon size={16} />}>
-                <input type="tel" value={form.phone} maxLength={16} placeholder="0991234567" autoComplete="off"
-                  aria-invalid={Boolean(errors.phone)} onChange={(event) => update('phone', event.target.value.replace(/\D/g, ''))} />
+                <input type="tel" inputMode="tel" value={form.phone} maxLength={USER_FIELD_LIMITS.phone} placeholder="0991234567" autoComplete="off"
+                  aria-invalid={Boolean(errors.phone)} onChange={(event) => update('phone', sanitizePhone(event.target.value))} />
               </Field>
               <Field label="Nombres" required error={errors.firstName} icon={<UserIcon size={16} />}>
                 <input value={form.firstName} maxLength={100} placeholder="Nombres completos" aria-invalid={Boolean(errors.firstName)}
@@ -172,18 +175,5 @@ export function UserRegisterPage() {
         </div>
       </form>
     </section>
-  );
-}
-
-function Field({ label, required, hint, error, icon, className = '', children }: {
-  label: string; required?: boolean; hint?: string; error?: string; icon: ReactNode; className?: string; children: ReactNode;
-}) {
-  return (
-    <label className={`field ${className}`}>
-      <span>{label}{required && <b> *</b>}</span>
-      <span className="input-icon">{icon}{children}</span>
-      {hint && !error && <small>{hint}</small>}
-      {error && <small className="field-error">{error}</small>}
-    </label>
   );
 }

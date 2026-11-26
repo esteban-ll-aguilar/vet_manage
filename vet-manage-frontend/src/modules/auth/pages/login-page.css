@@ -174,9 +174,20 @@
 .login-alert--error { border-color: #f6d3d5; color: #b4505a; background: #fff0f0; }
 .login-alert--warning { border-color: #f5dfb8; color: #9a6420; background: #fff7ea; }
 .login-alert--locked { border-color: #d9dff7; color: #3d4f8f; background: #f1f4ff; }
+.login-alert--success { border-color: #cdeadb; color: #2f7d55; background: #effaf4; }
 @keyframes login-alert-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 
 .login-help { margin: 22px 0 0; color: #8a96a3; font-size: 12px; text-align: center; }
+.login-help__link { color: #3f6fe8; font-weight: 600; text-decoration: none; }
+.login-help__link:hover, .login-help__link:focus-visible { text-decoration: underline; }
+
+/* Recuperación de contraseña (HU-58): solo el panel del formulario. */
+.login-screen--single { grid-template-columns: 1fr; }
+.login-screen--single .login-mobile-logo { display: block; width: 72px; height: 72px; margin-bottom: 22px; object-fit: cover; border-radius: 20px; box-shadow: 0 10px 24px #1e344118; }
+.login-recovery-state { margin: 0 0 18px; color: #596674; font-size: 14px; line-height: 1.6; }
+.login-recovery-hint { margin: -10px 0 0; color: #8a96a3; font-size: 12px; }
+.login-recovery-actions { display: flex; flex-direction: column; gap: 12px; margin-top: 4px; }
+.login-recovery-actions .login-submit { text-decoration: none; }
 .login-footer { margin-top: 24px; color: #a3adb7; font-size: 11px; text-align: center; }
 
 

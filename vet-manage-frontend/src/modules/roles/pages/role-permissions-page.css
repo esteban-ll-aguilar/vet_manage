@@ -1,0 +1,28 @@
+.role-permissions-page { display: grid; gap: 18px; }
+.role-permissions-page .back-link { justify-self: start; margin-bottom: 0; }
+.role-permissions-toolbar { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 14px; padding: 18px; border: 1px solid #e8edf1; border-radius: 14px; background: #fff; }
+.role-permissions-toolbar__role { display: grid; gap: 7px; min-width: min(100%, 300px); color: #536170; font-size: 12px; font-weight: 700; }
+.role-permissions-toolbar__role select { min-height: 42px; padding: 0 12px; border: 1px solid #dfe5eb; border-radius: 9px; color: #26323d; background: #fff; font: inherit; }
+.role-permissions-toolbar p { margin: 0; color: #a16207; font-size: 12px; }
+.role-permissions-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr)); gap: 14px; align-items: start; }
+.role-permissions-card { overflow: hidden; border: 1px solid #e8edf1; border-radius: 14px; background: #fff; }
+.role-permissions-card > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 17px; border-bottom: 1px solid #edf0f3; }
+.role-permissions-card h3 { margin: 0; color: #26323d; font-size: 14px; }
+.role-permissions-card > header span { color: #8a96a3; font-size: 11px; }
+.role-permissions-card ul { display: grid; gap: 1px; margin: 0; padding: 5px 12px; list-style: none; }
+.role-permissions-card li { min-width: 0; }
+.role-permission-option { display: flex; align-items: flex-start; gap: 11px; padding: 10px 5px; cursor: pointer; }
+.role-permission-option input { width: 16px; height: 16px; margin: 2px 0 0; accent-color: #416fe7; flex: none; }
+.role-permission-option > span { display: grid; min-width: 0; gap: 3px; }
+.role-permission-option strong { color: #354250; font-size: 12px; font-weight: 650; }
+.role-permission-option small { overflow-wrap: anywhere; color: #8a96a3; font-size: 10px; }
+.role-permission-option:has(input:disabled) { cursor: wait; opacity: .7; }
+.role-permissions-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+.role-permissions-confirm { max-width: 440px; }
+.role-permissions-confirm h3 { margin: 0; color: #26323d; font-size: 18px; }
+.role-permissions-confirm p { color: #66727f; font-size: 14px; line-height: 1.5; }
+.role-permissions-confirm .role-permissions-actions { margin-top: 20px; }
+@media (max-width: 700px) {
+  .role-permissions-toolbar { align-items: stretch; }
+  .role-permissions-toolbar__role { min-width: 100%; }
+}

@@ -17,6 +17,8 @@ export default () => ({
     jwtSecret: process.env.JWT_SECRET,
     jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '15m',
     sessionExpiresIn: process.env.SESSION_EXPIRES_IN ?? '12h',
+    // Vigencia en minutos del enlace de recuperación de contraseña (HU-58).
+    passwordResetTtlMinutes: Number(process.env.PASSWORD_RESET_TTL_MINUTES ?? 30),
   },
   rbac: {
     syncMode: process.env.RBAC_SYNC_MODE ?? 'create-only',

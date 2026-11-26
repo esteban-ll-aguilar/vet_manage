@@ -1,4 +1,5 @@
 type RoleName =
+  | 'superadmin'
   | 'manager'
   | 'veterinarian'
   | 'veterinary_technician'
@@ -64,6 +65,14 @@ export const DEMO_PASSWORD = 'Vet12345';
 // No incluye al Administrador: lo crea la API al arrancar con las variables ADMIN_*.
 export const IDENTITY_DEMO: { users: readonly DemoUser[] } = {
   users: [
+    // Cuenta exclusiva para pruebas manuales; no representa un usuario operativo.
+    {
+      identification: '1700000019',
+      firstName: 'Super',
+      lastName: 'Administrador',
+      email: 'superadmin@vetmanage.local',
+      roles: ['superadmin'],
+    },
     {
       identification: '1710000017',
       firstName: 'Marcelo',

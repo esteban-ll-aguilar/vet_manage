@@ -13,6 +13,7 @@ function createPrismaMock() {
 describe('Inventory demo seed', () => {
   it('declares demo products with positive prices and catalog references', () => {
     expect(INVENTORY_DEMO.products.length).toBeGreaterThan(0);
+    expect(INVENTORY_DEMO.products.every((product) => product.description.trim().length > 0)).toBe(true);
     expect(INVENTORY_DEMO.products.every((product) => product.unitPrice > 0)).toBe(true);
     expect(INVENTORY_DEMO.products.every((product) => INVENTORY_DEMO.categories.some(({ name }) => name === product.category))).toBe(true);
     expect(INVENTORY_DEMO.products.every((product) => INVENTORY_DEMO.brands.some(({ name }) => name === product.brand))).toBe(true);
@@ -30,6 +31,7 @@ describe('Inventory demo seed', () => {
     expect(tx.product.upsert).toHaveBeenCalledWith(expect.objectContaining({
       where: { code: INVENTORY_DEMO.products[0].code },
       update: expect.objectContaining({ categoryId: expect.any(String), brandId: expect.any(String) }),
+      create: expect.objectContaining({ description: INVENTORY_DEMO.products[0].description }),
     }));
     expect(result).toEqual({
       categories: INVENTORY_DEMO.categories.length,

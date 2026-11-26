@@ -6,7 +6,7 @@ import { inventoryApi } from '../services/inventory-api';
 import type { CatalogItem, ProductDraft } from '../types';
 import { useToast } from '../../../common/components/toast-context';
 
-type FieldErrors = Partial<Record<'code' | 'name' | 'unitPrice' | 'category' | 'brand', string>>;
+type FieldErrors = Partial<Record<'code' | 'name' | 'description' | 'unitPrice' | 'category' | 'brand', string>>;
 
 export function ProductFormPage() {
   const navigate = useNavigate();
@@ -54,6 +54,7 @@ export function ProductFormPage() {
     const validationErrors: FieldErrors = {};
     if (!draft.code.trim()) validationErrors.code = 'El código es obligatorio';
     if (!draft.name.trim()) validationErrors.name = 'El nombre es obligatorio';
+    if (!draft.description.trim()) validationErrors.description = 'La descripción es obligatoria';
     if (!draft.category.id) validationErrors.category = 'La categoría es obligatoria';
     if (!draft.brand.id) validationErrors.brand = 'La marca es obligatoria';
     if (!draft.unitPrice || Number(draft.unitPrice) <= 0) validationErrors.unitPrice = 'El precio unitario debe ser mayor que cero';
@@ -71,6 +72,7 @@ export function ProductFormPage() {
       setErrors({
         code: backendErrors.find((item) => item.includes('código')),
         name: backendErrors.find((item) => item.includes('nombre')),
+        description: backendErrors.find((item) => item.includes('descripción')),
         category: backendErrors.find((item) => item.includes('categoría')),
         brand: backendErrors.find((item) => item.includes('marca')),
         unitPrice: backendErrors.find((item) => item.includes('precio')) ?? (message.includes('código') ? undefined : message.includes('precio') ? message : undefined),
@@ -84,7 +86,7 @@ export function ProductFormPage() {
       <Link className="back-link" to="/inventory/products">← Volver a productos</Link>
       <div className="page-heading"><div><span className="eyebrow">Inventario · Productos</span><h2>{isEditing ? 'Editar producto' : 'Registrar producto'}</h2><p>{isEditing ? 'Actualiza la información del producto sin perder sus relaciones.' : 'Completa la información esencial para incorporarlo al catálogo.'}</p></div></div>
       <form className="product-form" onSubmit={submit} noValidate>
-        <div className="form-section"><div className="form-section__heading"><span className="section-number">01</span><div><h3>Identificación</h3><p>Usa un código único para encontrar el producto rápidamente.</p></div></div><div className="form-grid"><Field label="Código del producto" required error={errors.code}><input value={draft.code} onChange={(event) => update('code', event.target.value)} placeholder="Ej. PR-001" aria-invalid={Boolean(errors.code)} /></Field><Field label="Nombre del producto" required error={errors.name}><input value={draft.name} onChange={(event) => update('name', event.target.value)} placeholder="Ej. Alimento para perro" aria-invalid={Boolean(errors.name)} /></Field><Field className="form-grid__full" label="Descripción" hint="Opcional"><textarea value={draft.description} onChange={(event) => update('description', event.target.value)} placeholder="Describe brevemente el producto" rows={3} /></Field></div></div>
+        <div className="form-section"><div className="form-section__heading"><span className="section-number">01</span><div><h3>Identificación</h3><p>Usa un código único para encontrar el producto rápidamente.</p></div></div><div className="form-grid"><Field label="Código del producto" required error={errors.code}><input value={draft.code} onChange={(event) => update('code', event.target.value)} placeholder="Ej. PR-001" aria-invalid={Boolean(errors.code)} /></Field><Field label="Nombre del producto" required error={errors.name}><input value={draft.name} onChange={(event) => update('name', event.target.value)} placeholder="Ej. Alimento para perro" aria-invalid={Boolean(errors.name)} /></Field><Field className="form-grid__full" label="Descripción" required error={errors.description}><textarea value={draft.description} onChange={(event) => update('description', event.target.value)} placeholder="Describe brevemente el producto" rows={3} aria-invalid={Boolean(errors.description)} /></Field></div></div>
         <div className="form-section"><div className="form-section__heading"><span className="section-number">02</span><div><h3>Clasificación</h3><p>Relaciona el producto con una categoría y una marca.</p></div></div><div className="form-grid"><CatalogField label="Categoría" value={draft.category.id ?? ''} options={categories} error={errors.category} onChange={(value) => selectReference('category', value)} onCreate={() => setInlineCreate('category')} />{inlineCreate === 'category' && <CatalogInlineCreate label="Categoría" onCreate={(name) => createReference('category', name)} onCancel={() => setInlineCreate(null)} />}<CatalogField label="Marca" value={draft.brand.id ?? ''} options={brands} error={errors.brand} onChange={(value) => selectReference('brand', value)} onCreate={() => setInlineCreate('brand')} />{inlineCreate === 'brand' && <CatalogInlineCreate label="Marca" onCreate={(name) => createReference('brand', name)} onCancel={() => setInlineCreate(null)} />}</div></div>
         <div className="form-section"><div className="form-section__heading"><span className="section-number">03</span><div><h3>Precio</h3><p>Define el precio unitario de referencia del producto.</p></div></div><div className="form-grid"><Field label="Precio unitario" required error={errors.unitPrice} hint="Debe ser mayor que cero"><div className="currency-input"><span>$</span><input type="number" min="0.01" step="0.01" value={draft.unitPrice} onChange={(event) => update('unitPrice', event.target.value)} placeholder="0.00" aria-invalid={Boolean(errors.unitPrice)} /></div></Field></div></div>
         <div className="form-actions"><Link className="button button--ghost" to="/inventory/products">Cancelar</Link><button className="button button--primary" type="submit" disabled={saving}>{saving ? (isEditing ? 'Guardando…' : 'Registrando…') : (isEditing ? 'Guardar cambios' : 'Registrar producto')}</button></div>

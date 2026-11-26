@@ -14,13 +14,14 @@ export type ProductInput = {
 
 export type ProductInputValidation = {
   valid: boolean;
-  errors: Partial<Record<'code' | 'name' | 'unitPrice' | 'category' | 'brand', string>>;
+  errors: Partial<Record<'code' | 'name' | 'description' | 'unitPrice' | 'category' | 'brand', string>>;
 };
 
 export function validateProductInput(input: ProductInput): ProductInputValidation {
   const errors: ProductInputValidation['errors'] = {};
   const code = input.code?.trim() ?? '';
   const name = input.name?.trim() ?? '';
+  const description = input.description?.trim() ?? '';
   const category = input.category?.id?.trim() || input.category?.name?.trim();
   const brand = input.brand?.id?.trim() || input.brand?.name?.trim();
   const unitPrice = typeof input.unitPrice === 'string'
@@ -29,6 +30,7 @@ export function validateProductInput(input: ProductInput): ProductInputValidatio
 
   if (!code) errors.code = 'El código es obligatorio';
   if (!name) errors.name = 'El nombre es obligatorio';
+  if (!description) errors.description = 'La descripción es obligatoria';
   if (!category) errors.category = 'La categoría es obligatoria';
   if (!brand) errors.brand = 'La marca es obligatoria';
   if (unitPrice === undefined || unitPrice === null || !Number.isFinite(unitPrice) || unitPrice <= 0) {

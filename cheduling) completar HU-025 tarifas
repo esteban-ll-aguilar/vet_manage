@@ -1,0 +1,14 @@
+ .../scheduling/rates/dtos/create-rate.dto.spec.ts  |  43 [32m++++[m
+ .../scheduling/rates/dtos/create-rate.dto.ts       |  31 [32m+++[m
+ .../scheduling/rates/dtos/update-rate.dto.ts       |   7 [32m+[m
+ .../src/modules/scheduling/rates/rates.module.ts   |   8 [32m+[m[31m-[m
+ .../rates/repositories/rate.repository.ts          |  65 [32m++++++[m
+ .../rates/routes/rates.controller.spec.ts          |  42 [32m++++[m
+ .../scheduling/rates/routes/rates.controller.ts    |  35 [32m++++[m
+ .../rates/services/rates.service.spec.ts           |  99 [32m++++++++++[m
+ .../scheduling/rates/services/rates.service.ts     |  62 [32m++++++[m
+ vet-manage-api/test/rates/rates.e2e-spec.ts        | 165 [32m++++++++++++++++[m
+ .../src/modules/scheduling/rates/rates-api.ts      |  34 [32m++++[m
+ .../modules/scheduling/rates/rates-page.test.tsx   | 217 [32m+++++++++++++++++++++[m
+ .../src/modules/scheduling/rates/rates-page.tsx    | 156 [32m++++++++++++++[m[31m-[m
+ 13 files changed, 960 insertions(+), 4 deletions(-)

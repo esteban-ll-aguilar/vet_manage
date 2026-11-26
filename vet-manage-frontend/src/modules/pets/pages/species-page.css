@@ -1,0 +1,30 @@
+/* Activar e inactivar especie (HU-15). Los estilos base de la tabla y del modal están en styles/index.css. */
+.species-table__actions .species-icon-btn + .species-icon-btn { margin-left: 6px; }
+
+.species-icon-btn.species-icon-btn--inactivate { color: #c2414b; background: #fdecec; border-color: #f7c5ca; }
+.species-icon-btn.species-icon-btn--inactivate:hover,
+.species-icon-btn.species-icon-btn--inactivate:focus-visible { color: #a8323b; background: #fbdcdc; border-color: #f0a9b0; }
+.species-icon-btn.species-icon-btn--activate { color: #15803d; background: #f0fdf4; border-color: #bbf7d0; }
+.species-icon-btn.species-icon-btn--activate:hover,
+.species-icon-btn.species-icon-btn--activate:focus-visible { color: #166534; background: #dcfce7; border-color: #86efac; }
+
+.species-status-dialog { max-width: 460px; }
+.species-status-dialog__species {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+.species-status-dialog__transition { display: inline-flex; align-items: center; gap: 6px; color: #94a3b8; }
+.species-status-dialog__description { margin: 14px 0 0; color: #5b6878; font-size: 13px; line-height: 1.55; }
+.species-status-dialog__actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.species-status-dialog__confirm { color: #fff; background: #c2414b; border: 1px solid transparent; }
+.species-status-dialog__confirm:hover:not(:disabled) { background: #a8323b; }
+.species-status-dialog__confirm--activate { background: #1f7a53; }
+.species-status-dialog__confirm--activate:hover:not(:disabled) { background: #186242; }
+.species-status-dialog .status-badge--active { color: #1f7a53; background: #e8f7f0; border-color: #bfead5; }
+.species-status-dialog .status-badge--inactive { color: #c2414b; background: #fdecec; border-color: #f7c5ca; }

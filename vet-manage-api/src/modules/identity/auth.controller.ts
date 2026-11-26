@@ -1,12 +1,17 @@
-import { Body, Controller, Get, HttpCode, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, Query, Req, Res } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { CookieOptions, Request, Response } from 'express';
 import { ApiException } from '../../common/errors/api-exception.js';
 import { success } from '../../common/errors/api-response.js';
 import { Authenticated } from './decorators/require-permissions.decorator.js';
+import { ChangePasswordDto } from './dtos/change-password.dto.js';
 import { LoginDto } from './dtos/login.dto.js';
+import { PasswordResetConfirmDto } from './dtos/password-reset-confirm.dto.js';
+import { PasswordResetRequestDto } from './dtos/password-reset-request.dto.js';
 import { AccessService } from './services/access.service.js';
 import { AuthService } from './services/auth.service.js';
+import { ChangePasswordService } from './services/change-password.service.js';
+import { RecoverPasswordService } from './services/recover-password.service.js';
 import type { SessionMeta } from './services/session.service.js';
 import type { AuthenticatedRequest } from './types/authenticated-request.js';
 import type { AuthSession, LoginResult } from './types/session-profile.js';
@@ -17,7 +22,9 @@ export const REFRESH_COOKIE = 'vetmanage_refresh';
 export class AuthController {
   constructor(
     private readonly auth: AuthService,
+    private readonly changePasswordService: ChangePasswordService,
     private readonly access: AccessService,
+    private readonly recoverPassword: RecoverPasswordService,
     private readonly config: ConfigService,
   ) {}
 
@@ -54,6 +61,36 @@ export class AuthController {
     const profile = request.user && (await this.access.getSessionProfile(request.user.id));
     if (!profile) throw ApiException.unauthorized();
     return success(profile);
+  }
+
+  @Post('change-password')
+  @HttpCode(200)
+  @Authenticated()
+  async changePassword(@Body() input: ChangePasswordDto, @Req() request: AuthenticatedRequest) {
+    if (!request.user) throw ApiException.unauthorized();
+    const { message } = await this.changePasswordService.changePassword(request.user.id, input);
+    return success(null, message);
+  }
+
+  // Recuperación de contraseña (HU-58): rutas públicas, sin sesión.
+  @Post('password-reset/request')
+  @HttpCode(200)
+  async requestPasswordReset(@Body() input: PasswordResetRequestDto) {
+    const { message } = await this.recoverPassword.request(input);
+    return success(null, message);
+  }
+
+  @Get('password-reset/validate')
+  async validatePasswordReset(@Query('token') token?: string) {
+    const { valid, message } = await this.recoverPassword.validate(typeof token === 'string' ? token : undefined);
+    return success({ valid }, message);
+  }
+
+  @Post('password-reset/confirm')
+  @HttpCode(200)
+  async confirmPasswordReset(@Body() input: PasswordResetConfirmDto) {
+    const { message } = await this.recoverPassword.confirm(input);
+    return success(null, message);
   }
 
   // Guarda el refresh token en una cookie httpOnly y devuelve el resto de la sesión.

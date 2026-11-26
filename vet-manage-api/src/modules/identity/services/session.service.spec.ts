@@ -14,3 +14,20 @@ describe('durationToMs', () => {
     expect(() => durationToMs('12 horas')).toThrow();
   });
 });
+
+describe('SessionService.revokeAllForUser (HU-58)', () => {
+  it('revoca solo las sesiones abiertas de la cuenta, con el cliente de la transacción', async () => {
+    const { SessionService } = await import('./session.service.js');
+    const prisma = { userSession: { updateMany: vi.fn() } };
+    const tx = { userSession: { updateMany: vi.fn().mockResolvedValue({ count: 2 }) } };
+    const service = new SessionService(prisma as never, { getOrThrow: () => '12h' } as never);
+
+    await service.revokeAllForUser('u-1', tx as never);
+
+    expect(tx.userSession.updateMany).toHaveBeenCalledWith({
+      where: { userId: 'u-1', revokedAt: null },
+      data: { revokedAt: expect.any(Date) },
+    });
+    expect(prisma.userSession.updateMany).not.toHaveBeenCalled();
+  });
+});

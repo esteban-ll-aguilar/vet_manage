@@ -1,0 +1,17 @@
+.product-search-toolbar {
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.product-search-toolbar .search-field {
+  flex: 2 1 260px;
+  max-width: none;
+}
+
+.product-search-toolbar .field {
+  flex: 1 1 160px;
+}
+
+.product-search-toolbar .field select {
+  min-height: 42px;
+}

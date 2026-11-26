@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../infrastructure/database/prisma/prisma.service.js';
-import type { Species } from '../../../generated/prisma/client.js';
+import type { Prisma, Species } from '../../../generated/prisma/client.js';
 
 @Injectable()
 export class SpeciesRepository {
@@ -23,8 +23,8 @@ export class SpeciesRepository {
     });
   }
 
-  async create(data: { name: string; description?: string | null }): Promise<Species> {
-    return this.prisma.species.create({
+  async create(data: { name: string; description?: string | null }, tx?: Prisma.TransactionClient): Promise<Species> {
+    return (tx ?? this.prisma).species.create({
       data: {
         name: data.name.trim(),
         description: data.description ? data.description.trim() : null,
@@ -38,6 +38,31 @@ export class SpeciesRepository {
       where: { isActive: true },
       select: { id: true, name: true },
       orderBy: { name: 'asc' },
+    });
+  }
+
+  async findAll(): Promise<Species[]> {
+    return this.prisma.species.findMany({
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  // Activa o inactiva la especie (HU-15).
+  async updateStatus(id: string, isActive: boolean, tx?: Prisma.TransactionClient): Promise<Species> {
+    return (tx ?? this.prisma).species.update({ where: { id }, data: { isActive } });
+  }
+
+  async update(
+    id: string,
+    data: { name: string; description: string | null },
+    tx?: Prisma.TransactionClient,
+  ): Promise<Species> {
+    return (tx ?? this.prisma).species.update({
+      where: { id },
+      data: {
+        name: data.name.trim(),
+        description: data.description,
+      },
     });
   }
 }

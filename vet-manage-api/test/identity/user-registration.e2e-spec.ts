@@ -13,6 +13,7 @@ import { MailService } from '../../src/infrastructure/mail/mail.service.js';
 import { IdentityModule } from '../../src/modules/identity/identity.module.js';
 import { PasswordHasher } from '../../src/modules/identity/services/password-hasher.service.js';
 import { TokenService } from '../../src/modules/identity/services/token.service.js';
+import { deleteAuditLogsOfPeople } from './support.js';
 
 @Module({
   imports: [ConfigModule.forRoot({ isGlobal: true, load: [configuration] }), PrismaModule, MailModule, IdentityModule],
@@ -124,6 +125,7 @@ describe('Registro de usuarios (e2e)', () => {
       select: { id: true },
     });
     const personIds = people.map((person) => person.id);
+    await deleteAuditLogsOfPeople(prisma, personIds);
     await prisma.userRole.deleteMany({ where: { user: { personId: { in: personIds } } } });
     await prisma.user.deleteMany({ where: { personId: { in: personIds } } });
     await prisma.person.deleteMany({ where: { id: { in: personIds } } });
@@ -157,6 +159,32 @@ describe('Registro de usuarios (e2e)', () => {
     expect(mail.to).toBe(payload.email);
     const password = mail.text.match(/Contraseña temporal: (\S+)/)![1];
     expect(await verifyPassword(password, stored!.user!.password!)).toBe(true);
+  });
+
+  it('registra la acción en la auditoría con el Administrador como actor y nada cuando se rechaza', async () => {
+    const payload = body();
+
+    await register(payload).expect(201);
+    await register(body({ identification: payload.identification })).expect(409);
+
+    const records = await prisma.auditLog.findMany({
+      where: { userId: adminId, affectedRecord: { contains: payload.identification } },
+    });
+    expect(records).toHaveLength(1);
+    expect(records[0]).toMatchObject({
+      role: 'Rol de prueba',
+      action: 'Registrar',
+      module: 'Usuarios',
+      affectedRecord: `${payload.identification} - María López`,
+      previousValue: null,
+      newValue: {
+        identification: payload.identification,
+        firstName: 'María',
+        lastName: 'López',
+        email: payload.email,
+        roles: [staffRole.displayName],
+      },
+    });
   });
 
   it('registra una sola cuenta con varios roles', async () => {

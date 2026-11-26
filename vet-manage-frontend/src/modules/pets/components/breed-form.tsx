@@ -5,15 +5,25 @@ import type { RegisterBreedDraft, SpeciesOption } from '../types';
 interface BreedFormProps {
   species: SpeciesOption[];
   speciesLoading?: boolean;
+  initialValue?: { name: string; speciesId: string; description?: string | null };
+  submitLabel?: string;
   onSubmit: (draft: RegisterBreedDraft) => Promise<void>;
   onCancel: () => void;
   isLoading?: boolean;
 }
 
-export function BreedForm({ species, speciesLoading = false, onSubmit, onCancel, isLoading = false }: BreedFormProps) {
-  const [name, setName] = useState('');
-  const [speciesId, setSpeciesId] = useState('');
-  const [description, setDescription] = useState('');
+export function BreedForm({
+  species,
+  speciesLoading = false,
+  initialValue,
+  submitLabel = 'Guardar raza',
+  onSubmit,
+  onCancel,
+  isLoading = false,
+}: BreedFormProps) {
+  const [name, setName] = useState(initialValue?.name ?? '');
+  const [speciesId, setSpeciesId] = useState(initialValue?.speciesId ?? '');
+  const [description, setDescription] = useState(initialValue?.description ?? '');
   const [errors, setErrors] = useState<BreedFieldErrors>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -34,18 +44,20 @@ export function BreedForm({ species, speciesLoading = false, onSubmit, onCancel,
     setSubmitError(null);
     try {
       await onSubmit(validation.value);
-      setName('');
-      setSpeciesId('');
-      setDescription('');
+      if (!initialValue) {
+        setName('');
+        setSpeciesId('');
+        setDescription('');
+      }
     } catch (cause) {
-      setSubmitError(cause instanceof Error ? cause.message : 'Error al registrar la raza');
+      setSubmitError(cause instanceof Error ? cause.message : 'Error al guardar la raza');
     }
   };
 
   const handleCancel = () => {
-    setName('');
-    setSpeciesId('');
-    setDescription('');
+    setName(initialValue?.name ?? '');
+    setSpeciesId(initialValue?.speciesId ?? '');
+    setDescription(initialValue?.description ?? '');
     setErrors({});
     setSubmitError(null);
     onCancel();
@@ -119,7 +131,7 @@ export function BreedForm({ species, speciesLoading = false, onSubmit, onCancel,
           Cancelar
         </button>
         <button type="submit" className="button button--primary" disabled={isLoading || speciesLoading || noSpecies}>
-          {isLoading ? 'Guardando...' : 'Guardar raza'}
+          {isLoading ? 'Guardando...' : submitLabel}
         </button>
       </div>
     </form>

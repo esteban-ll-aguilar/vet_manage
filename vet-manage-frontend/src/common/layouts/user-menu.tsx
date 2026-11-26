@@ -1,10 +1,23 @@
 import { useEffect, useId, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../modules/auth/auth-context';
 import { ChevronsUpDownIcon, LogoutIcon, MailIcon } from '../components/icons';
+
+function KeyIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="8" cy="15" r="4" />
+      <path d="M10.85 12.15 19 4" />
+      <path d="m18 5 2 2" />
+      <path d="m15 8 2 2" />
+    </svg>
+  );
+}
 
 // Tarjeta del usuario en el menú lateral con un panel de opciones de la cuenta.
 export function UserMenu() {
   const { session, logout } = useAuth();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const panelId = useId();
@@ -52,6 +65,18 @@ export function UserMenu() {
           )}
 
           <div className="user-menu__actions">
+            <button
+              className="user-menu__item"
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setOpen(false);
+                navigate('/change-password');
+              }}
+            >
+              <KeyIcon />
+              Cambiar contraseña
+            </button>
             <button className="user-menu__item user-menu__item--danger" type="button" role="menuitem" onClick={() => void logout()}>
               <LogoutIcon size={17} />
               Cerrar sesión

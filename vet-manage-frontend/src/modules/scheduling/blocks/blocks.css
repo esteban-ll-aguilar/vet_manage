@@ -1,0 +1,32 @@
+
+.blocks-page .page-heading .button { flex-shrink: 0; white-space: nowrap; }
+
+.scope-field { margin: 0; padding: 0; border: 0; }
+.scope-field legend { margin-bottom: 7px; padding: 0; }
+.scope-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+/* Texto a la izquierda y casilla con visto a la derecha. */
+.scope-option { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border: 1px solid #dfe6ec; border-radius: 8px; color: #26323d; background: #fff; font-weight: 600; cursor: pointer; transition: border-color .2s ease, background .2s ease; }
+.scope-option:hover { border-color: #b9c9f5; }
+.scope-option__input { position: absolute; width: 1px; height: 1px; margin: 0; opacity: 0; pointer-events: none; }
+.scope-option__check { display: grid; flex-shrink: 0; place-items: center; width: 20px; height: 20px; border: 1.5px solid #cfd8e1; border-radius: 6px; color: transparent; background: #fff; transition: all .2s ease; }
+.scope-option:has(.scope-option__input:checked) { border-color: #7d9fff; background: #f5f8ff; }
+.scope-option:has(.scope-option__input:checked) .scope-option__check { border-color: #416fe7; color: #fff; background: #416fe7; }
+.scope-option:has(.scope-option__input:focus-visible) { box-shadow: 0 0 0 3px #edf2ff; border-color: #7d9fff; }
+
+.form-problem { margin: 0 32px 20px; padding: 13px 15px; border: 1px solid #f3c9cc; border-radius: 9px; color: #b94d54; background: #fff6f6; font-size: 12px; }
+.form-problem ul { margin: 8px 0 0; padding-left: 18px; color: #8f3f45; }
+.form-problem li + li { margin-top: 4px; }
+
+.blocks-filter { min-width: 200px; }
+
+.block-actions { white-space: nowrap; text-align: right; }
+.block-confirm { display: inline-flex; align-items: center; gap: 8px; color: #b94d54; font-weight: 650; }
+.block-actions .button { min-height: 32px; padding: 0 12px; font-size: 11px; }
+.button--danger { color: #fff; border-color: #c95e65; background: #c95e65; }
+.button--danger:hover:not(:disabled) { background: #b94d54; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (max-width: 640px) {
+  .form-problem { margin: 0 18px 18px; }
+  .blocks-list .catalog-card__heading { flex-direction: column; align-items: stretch; }
+}

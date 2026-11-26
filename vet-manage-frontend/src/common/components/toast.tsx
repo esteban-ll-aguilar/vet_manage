@@ -9,8 +9,16 @@ type Toast = {
   type: ToastType;
 };
 
+type ConfirmData = {
+  message: string;
+  actionLabel: string;
+  type: 'danger' | 'success';
+  resolve: (accepted: boolean) => void;
+};
+
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const [confirmData, setConfirmData] = useState<ConfirmData | null>(null);
   const nextId = useRef(0);
 
   const dismissToast = useCallback((id: number) => {
@@ -22,12 +30,68 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     setToasts((current) => [...current, { id, message, type }].slice(-4));
   }, []);
 
+  const confirm = useCallback((
+    message: string,
+    actionLabel = 'Aceptar',
+    type: 'danger' | 'success' = 'danger'
+  ): Promise<boolean> => {
+    return new Promise((resolve) => {
+      setConfirmData({
+        message,
+        actionLabel,
+        type,
+        resolve
+      });
+    });
+  }, []);
+
+  const handleConfirm = (accepted: boolean) => {
+    confirmData?.resolve(accepted);
+    setConfirmData(null);
+  };
+
   return (
-    <ToastContext.Provider value={{ showToast, dismissToast }}>
+    <ToastContext.Provider value={{ showToast, dismissToast, confirm }}>
       {children}
       <div className="toast-region" aria-live="polite" aria-atomic="false">
         {toasts.map((toast) => <ToastItem key={toast.id} toast={toast} onDismiss={dismissToast} />)}
       </div>
+      {confirmData && (
+        <div className="confirm-overlay">
+          <div
+            className={`confirm-modal confirm-modal--${confirmData.type}`}
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="confirm-title"
+          >
+            <h3 id="confirm-title">
+              {confirmData.type === 'danger'
+                ? '¿Estás seguro?'
+                : 'Confirmar activación'}
+            </h3>
+
+            <p>{confirmData.message}</p>
+
+            <div className="confirm-actions">
+              <button
+                type="button"
+                className="confirm-cancel"
+                onClick={() => handleConfirm(false)}
+              >
+                No
+              </button>
+
+              <button
+                type="button"
+                className={`button button--${confirmData.type}-soft`}
+                onClick={() => handleConfirm(true)}
+              >
+                {confirmData.actionLabel}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </ToastContext.Provider>
   );
 }

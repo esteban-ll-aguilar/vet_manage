@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { FormEvent, ReactNode } from 'react';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import logo from '../../../assets/logo.jpeg';
 import { ApiError } from '../../../infrastructure/api/http-client';
 import { useAuth } from '../auth-context';
@@ -10,6 +10,7 @@ const MISSING_FIELDS = 'Ingrese su correo y contraseña';
 const INVALID_EMAIL = 'Ingrese un correo electrónico válido';
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const CURRENT_YEAR = new Date().getFullYear();
+export const PASSWORD_RESET_DONE = 'Contraseña actualizada. Inicie sesión con su nueva contraseña';
 
 type Feedback = { kind: 'error' | 'warning' | 'locked'; message: string };
 
@@ -32,7 +33,7 @@ function toFeedback(cause: unknown): Feedback {
 }
 
 export function LoginPage() {
-  const { status, login } = useAuth();
+  const { status, session, login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [email, setEmail] = useState('');
@@ -42,8 +43,12 @@ export function LoginPage() {
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const from = (location.state as { from?: string } | null)?.from ?? '/';
-  if (status === 'authenticated') return <Navigate to={from} replace />;
+  const navigationState = location.state as { from?: string; passwordReset?: boolean } | null;
+  const from = navigationState?.from ?? '/';
+  const passwordReset = Boolean(navigationState?.passwordReset);
+  if (status === 'authenticated') {
+    return <Navigate to={session?.mustChangePassword ? '/change-password' : from} replace />;
+  }
 
   const trimmedEmail = email.trim();
   const emailError = emailTouched && trimmedEmail && !EMAIL_PATTERN.test(trimmedEmail) ? INVALID_EMAIL : null;
@@ -64,8 +69,8 @@ export function LoginPage() {
     setSubmitting(true);
     setFeedback(null);
     try {
-      await login({ email: trimmedEmail, password });
-      navigate(from, { replace: true });
+      const profile = await login({ email: trimmedEmail, password });
+      navigate(profile.mustChangePassword ? '/change-password' : from, { replace: true });
     } catch (cause) {
       setPassword('');
       setFeedback(toFeedback(cause));
@@ -107,6 +112,13 @@ export function LoginPage() {
           <span className="eyebrow">Bienvenido de nuevo</span>
           <h1 id="login-title">Inicia sesión</h1>
           <p className="login-subtitle">Ingresa con el correo y la contraseña de tu cuenta.</p>
+
+          {passwordReset && !feedback && (
+            <div className="login-alert login-alert--success" role="status">
+              <span className="login-alert__icon"><CheckIcon /></span>
+              <p>{PASSWORD_RESET_DONE}</p>
+            </div>
+          )}
 
           {feedback && (
             <div className={`login-alert login-alert--${feedback.kind}`} role="alert">
@@ -161,7 +173,11 @@ export function LoginPage() {
             </button>
           </form>
 
-          <p className="login-help">¿Olvidaste tu contraseña? Comunícate con el administrador del sistema.</p>
+          <p className="login-help">
+            <Link className="login-help__link" to="/forgot-password" state={{ email: trimmedEmail }}>
+              ¿Olvidó su contraseña?
+            </Link>
+          </p>
         </div>
         <footer className="login-footer">© {CURRENT_YEAR} VetManage · Gestión veterinaria</footer>
       </section>

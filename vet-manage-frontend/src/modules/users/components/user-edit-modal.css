@@ -1,0 +1,16 @@
+.users-modal.user-edit-modal { max-width: 640px; max-height: calc(100vh - 40px); overflow-y: auto; }
+.users-modal__icon.user-edit-modal__icon { color: #416fe7; background: #edf2ff; border-color: #c9d7fb; }
+.user-edit-modal .users-modal__body { padding-top: 4px; }
+.user-edit-modal .register-card__fields { align-items: start; }
+.user-edit-modal .inline-notice { margin: 0; }
+.user-edit-modal .field input:disabled { color: #6b7785; background: #f1f5f9; cursor: not-allowed; }
+.user-edit-modal__note { display: flex; gap: 8px; align-items: flex-start; margin: 0; color: #6b7785; font-size: 12px; }
+.user-edit-modal__note svg { flex: none; margin-top: 1px; color: #416fe7; }
+.user-edit-modal__note--warning { padding: 10px 12px; border-radius: 9px; color: #8a5a17; background: #fff7ea; }
+.user-edit-modal__note--warning svg { color: #c27b1c; }
+
+@media (max-width: 640px) {
+  .user-edit-modal .register-card__fields { grid-template-columns: 1fr; }
+  .user-edit-modal .users-modal__actions { flex-direction: column-reverse; }
+  .user-edit-modal .users-modal__actions .button { width: 100%; }
+}

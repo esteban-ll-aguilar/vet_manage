@@ -1,4 +1,5 @@
 .env
+.venv
 
 # OpenSpec & Agent skills / workflows
 .agent/
@@ -7,3 +8,5 @@
 opsx/
 *SKILL.md
 *skill.md
+.opencode
+.claude

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createHash, randomBytes } from 'node:crypto';
+import type { Prisma } from '../../../generated/prisma/client.js';
 import { PrismaService } from '../../../infrastructure/database/prisma/prisma.service.js';
 
 export type SessionMeta = { ipAddress?: string; userAgent?: string };
@@ -64,6 +65,14 @@ export class SessionService {
     if (count === 0 || session.user?.status !== 'ACTIVE') return null;
 
     return { userId: session.userId, ...(await this.create(session.userId, meta)) };
+  }
+
+  // Cierra todas las sesiones abiertas de la cuenta (HU-58: al restablecer la contraseña).
+  async revokeAllForUser(userId: string, tx: Prisma.TransactionClient = this.prisma) {
+    await tx.userSession.updateMany({
+      where: { userId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
   }
 
   async revoke(refreshToken: string) {

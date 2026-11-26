@@ -56,10 +56,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     endSession();
   }, [endSession]);
 
+  const clearMustChangePassword = useCallback(() => {
+    setSession((current) => (current ? { ...current, mustChangePassword: false } : current));
+  }, []);
+
   const value = useMemo<AuthContextValue>(() => {
     const permissions = new Set(session?.user.permissions);
-    return { status, session, login, logout, hasPermission: (permission) => permissions.has(permission) };
-  }, [login, logout, session, status]);
+    return {
+      status,
+      session,
+      login,
+      logout,
+      hasPermission: (permission) => permissions.has(permission),
+      clearMustChangePassword,
+    };
+  }, [clearMustChangePassword, login, logout, session, status]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

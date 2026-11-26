@@ -2,7 +2,6 @@ import { Type } from 'class-transformer';
 import {
   IsNotEmpty,
   IsNumber,
-  IsOptional,
   IsString,
   MaxLength,
   ValidateNested,
@@ -20,10 +19,10 @@ export class CreateProductDto {
   @MaxLength(150)
   name!: string;
 
-  @IsOptional()
   @IsString()
+  @IsNotEmpty()
   @MaxLength(2000)
-  description?: string;
+  description!: string;
 
   @Type(() => Number)
   @IsNumber({ maxDecimalPlaces: 2 })

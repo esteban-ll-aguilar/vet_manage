@@ -1,0 +1,49 @@
+.saturday-shifts-page .saturday-shifts-panels {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.saturday-shifts-page .saturday-shifts-panels:empty { display: none; }
+.saturday-shifts-page .saturday-shifts-card { min-width: 0; overflow: hidden; }
+.saturday-shifts-page .saturday-shifts-panels > .catalog-card { display: flex; flex-direction: column; }
+.saturday-shifts-page .catalog-card__heading .eyebrow { display: block; margin-bottom: 8px; }
+.saturday-shifts-page .saturday-shifts-form { display: flex; flex: 1; flex-direction: column; gap: 20px; padding: 24px; }
+.saturday-shifts-page .field { min-width: 0; }
+.saturday-shifts-page .field select { text-overflow: ellipsis; }
+.saturday-shifts-page .field > small { color: #677586; line-height: 1.6; }
+.saturday-shifts-page .saturday-shifts-form__actions { display: flex; justify-content: flex-end; margin-top: auto; padding-top: 20px; border-top: 1px solid #eef1f4; }
+.saturday-shifts-page .saturday-shifts-count { flex-shrink: 0; padding: 6px 10px; border-radius: 999px; color: #416fe7; background: #edf2ff; font-size: 11px; font-weight: 700; }
+.saturday-shifts-page .saturday-shifts-table { min-width: 680px; }
+.saturday-shifts-page .saturday-shifts-table td { vertical-align: middle; }
+.saturday-shifts-page .saturday-shifts-table td:last-child { max-width: 320px; overflow-wrap: anywhere; }
+.saturday-shifts-page .saturday-shifts-date { color: #26323d; font-weight: 650; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.saturday-shifts-page .saturday-shifts-time { display: inline-block; padding: 6px 9px; border-radius: 7px; color: #596674; background: #f3f6f9; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.saturday-shifts-page .saturday-shifts-empty-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; background: #edf2ff; color: #416fe7; font-size: 26px; }
+.saturday-shifts-page .empty-state { text-align: center; }
+.saturday-shifts-page .saturday-shifts-dates { border: 0; margin: 0; padding: 0; }
+.saturday-shifts-page .saturday-shifts-dates legend { margin-bottom: 8px; color: #26323d; font-size: 12px; font-weight: 700; }
+.saturday-shifts-page .saturday-shifts-date-fields { display: grid; gap: 8px; }
+.saturday-shifts-page .saturday-shifts-date-field { display: grid; grid-template-columns: 86px minmax(0, 1fr) auto; align-items: end; gap: 8px; }
+.saturday-shifts-page .saturday-shifts-date-field label { align-self: center; color: #677586; font-size: 12px; font-weight: 650; }
+.saturday-shifts-page .saturday-shifts-date-field input { width: 100%; }
+.saturday-shifts-page .saturday-shifts-dates > .button { margin-top: 10px; }
+.saturday-shifts-page .saturday-shifts-dates > small { display: block; margin-top: 8px; }
+
+@media (max-width: 900px) {
+  .saturday-shifts-page .saturday-shifts-panels { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .saturday-shifts-page .saturday-shifts-form,
+  .saturday-shifts-page .catalog-card__heading { padding: 20px 16px; }
+  .saturday-shifts-page .saturday-shifts-form__actions .button { width: 100%; }
+  .saturday-shifts-page .saturday-shifts-date-field { grid-template-columns: 1fr auto; }
+  .saturday-shifts-page .saturday-shifts-date-field label { grid-column: 1 / -1; }
+}
+.saturday-shifts-page .saturday-shifts-vets__list { margin: 14px 0 0; padding-left: 24px; color: #416fe7; font-size: 12px; font-weight: 650; }
+.saturday-shifts-page .saturday-shifts-vets__list li { padding: 8px 0 8px 4px; border-bottom: 1px solid #eef1f4; }
+.saturday-shifts-page .saturday-shifts-vets__list li > span { display: inline-block; width: calc(100% - 80px); vertical-align: middle; overflow-wrap: anywhere; color: #26323d; }
+.saturday-shifts-page .saturday-shifts-vets__list .button { margin-left: 8px; }
+.saturday-shifts-page .saturday-shifts-vets__empty { margin: 12px 0 0; color: #677586; font-size: 12px; }
