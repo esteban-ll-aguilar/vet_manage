@@ -64,7 +64,8 @@ model Patient {
   updatedAt          DateTime           @updatedAt @map("updated_at")
 
   // Agendamiento de Citas
-  citas Cita[]
+  citas             Cita[]
+  solicitudesEspera SolicitudEspera[]
 
   @@index([clientId])
   @@index([status])

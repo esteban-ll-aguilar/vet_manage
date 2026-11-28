@@ -1,0 +1,3 @@
+.working-hours-hint { margin: 0; padding: 10px 13px; border: 1px solid; border-radius: 9px; font-size: 12px; }
+.working-hours-hint--info { border-color: #c7d7fe; color: #3538cd; background: #f5f8ff; }
+.working-hours-hint--warning { border-color: #fedf89; color: #93370d; background: #fffaeb; }

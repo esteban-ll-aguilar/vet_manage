@@ -159,7 +159,7 @@ export function RatesPage() {
         setServiceId(services.find((item) => item.id !== service.id && item.estado)?.id ?? '');
       }
       setMessage(updated.estado ? 'Servicio activado correctamente' : 'Servicio inactivado correctamente');
-      showToast(updated.estado ? 'Servicio inactivado correctamente' : 'Servicio activado correctamente');
+      showToast(updated.estado ? 'Servicio activado correctamente' : 'Servicio inactivado correctamente');
     } catch (cause) {
       const globalError = globalErrorMessage(cause, 'No se pudo actualizar el estado del servicio');
       setGlobalError(globalError);
@@ -180,46 +180,44 @@ export function RatesPage() {
       </div>
       {globalError && <p className="form-error" role="alert">{globalError}</p>}
       {message && <p className="form-success" role="status">{message}</p>}
-      {canManage && (
-        <form className="rates-form" onSubmit={handleSubmit} noValidate>
-          <label className="field"><span>Sucursal</span>
-            <select value={branchId} onChange={(event) => setBranchId(event.target.value)}>
-              {branches.map((branch) => <option key={branch.id} value={branch.id}>{branch.nombre}</option>)}
-            </select>
-          </label>
-          <label className="field"><span>Servicio</span>
-            <select value={serviceId} onChange={(event) => setServiceId(event.target.value)}>
-              {services.map((service) => <option key={service.id} value={service.id}>{service.nombre}</option>)}
-            </select>
-          </label>
-          <label className="field"><span>Tarifa USD <b>*</b></span>
-            <input
-              ref={amountInput}
-              aria-label="Tarifa USD"
-              type="number"
-              min="0"
-              step="0.01"
-              value={amount}
-              onChange={(event) => {
-                setAmount(event.target.value);
-                setAmountError('');
-              }}
-              placeholder="20.00"
-              aria-invalid={Boolean(amountError)}
-              aria-describedby={amountError ? 'rate-amount-error' : undefined}
-            />
-            {amountError && <small id="rate-amount-error" className="field-error" role="alert">{amountError}</small>}
-          </label>
-          <button
-            type="submit"
-            className="button button--primary mt-4"
-            disabled={!branchId || !serviceId}
-          >
-            Guardar
-          </button>
-          {operationError && <p className="field-error" role="alert">{operationError}</p>}
-        </form>
-      )}
+      <form className="rates-form" onSubmit={handleSubmit} noValidate>
+        <label className="field"><span>Sucursal</span>
+          <select value={branchId} onChange={(event) => setBranchId(event.target.value)}>
+            {branches.map((branch) => <option key={branch.id} value={branch.id}>{branch.nombre}</option>)}
+          </select>
+        </label>
+        <label className="field"><span>Servicio</span>
+          <select value={serviceId} onChange={(event) => setServiceId(event.target.value)}>
+            {services.map((service) => <option key={service.id} value={service.id}>{service.nombre}</option>)}
+          </select>
+        </label>
+        <label className="field"><span>Tarifa USD <b>*</b></span>
+          <input
+            ref={amountInput}
+            aria-label="Tarifa USD"
+            type="number"
+            min="0"
+            step="0.01"
+            value={amount}
+            onChange={(event) => {
+              setAmount(event.target.value);
+              setAmountError('');
+            }}
+            placeholder="20.00"
+            aria-invalid={Boolean(amountError)}
+            aria-describedby={amountError ? 'rate-amount-error' : undefined}
+          />
+          {amountError && <small id="rate-amount-error" className="field-error" role="alert">{amountError}</small>}
+        </label>
+        <button
+          type="submit"
+          className="button button--primary mt-4"
+          disabled={!branchId || !serviceId}
+        >
+          Guardar
+        </button>
+        {operationError && <p className="field-error" role="alert">{operationError}</p>}
+      </form>
       <div className="product-table-wrap">
         <table className="product-table" aria-label="Tarifas">
           <thead>
@@ -255,7 +253,7 @@ export function RatesPage() {
                         }}
                         disabled={updatingServiceId === service.id}
                       >
-                        {service.estado ? 'Inactiva' : 'Activa'}
+                        {service.estado ? 'Inactivar servicio' : 'Activar servicio'}
                       </button>
                     </td>
                   )}

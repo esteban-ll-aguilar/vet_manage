@@ -286,7 +286,7 @@ describe('RatesPage', () => {
     expect(screen.getByRole('cell', { name: 'USD 18.00' })).toBeInTheDocument();
   });
 
-  it('CP-025-09 sin rates:manage oculta todos los controles de cambios', async () => {
+  it('CP-025-09 sin rates:manage permite intentar guardar pero oculta acciones del catálogo', async () => {
     renderPage(true, false, {
       id: 'seed-receptionist',
       firstName: 'Lucía',
@@ -297,9 +297,8 @@ describe('RatesPage', () => {
     });
 
     expect(await screen.findByText('Tarifas')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Guardar' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Inactivar servicio' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Activar servicio' })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Guardar' })).toBeInTheDocument();
+    expect(screen.queryByRole('columnheader', { name: 'Acciones' })).not.toBeInTheDocument();
     expect(ratesApi.update).not.toHaveBeenCalled();
     expect(ratesApi.deactivateService).not.toHaveBeenCalled();
     expect(ratesApi.activateService).not.toHaveBeenCalled();
@@ -317,6 +316,28 @@ describe('RatesPage', () => {
 
     expect(await screen.findByText(FORBIDDEN_RATE_MESSAGE)).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'USD 20.00' })).toBeInTheDocument();
+  });
+
+  it('CP-025-09 bloquea el intento de una recepcionista y conserva el catálogo', async () => {
+    const user = userEvent.setup();
+    vi.mocked(ratesApi.list).mockResolvedValue([makeRate('rate-20', 20)]);
+    renderPage(true, false, {
+      id: 'receptionist',
+      firstName: 'Mary',
+      lastName: 'Cano',
+      email: 'recep@vetmanage.local',
+      roles: [{ name: 'receptionist', displayName: 'Recepcionista' }],
+      permissions: ['rates:read'],
+    });
+
+    await screen.findByRole('option', { name: 'Consulta general' });
+    await user.type(await screen.findByRole('spinbutton', { name: 'Tarifa USD' }), '30.00');
+    await user.click(screen.getByRole('button', { name: 'Guardar' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(FORBIDDEN_RATE_MESSAGE);
+    expect(screen.getByRole('cell', { name: 'USD 20.00' })).toBeInTheDocument();
+    expect(ratesApi.save).not.toHaveBeenCalled();
+    expect(ratesApi.update).not.toHaveBeenCalled();
   });
 
   it('CP-025-09 muestra acceso denegado sin rates:read', () => {

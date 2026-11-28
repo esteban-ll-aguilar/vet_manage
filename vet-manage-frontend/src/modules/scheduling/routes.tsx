@@ -1,3 +1,6 @@
+import { AppointmentModifyPage } from './appointments/modify/appointment-modify-page';
+import { AppointmentRegisterRoute } from './appointments/appointment-register-route';
+import { AppointmentsPage } from './appointments/appointments-page';
 import type { ComponentType } from 'react';
 import { Route } from 'react-router-dom';
 import { RequirePermission } from '../auth/components/require-permission';
@@ -10,7 +13,11 @@ import { ResourcesPage } from './resources/resources-page';
 import { SaturdayShiftsPage } from './saturday-shifts/saturday-shifts-page';
 import { WorkSchedulesPage } from './work-schedules/work-schedules-page';
 
+import { CalendarPage } from './calendar/calendar-page';
+
 const PAGES: Record<SchedulingPath, ComponentType> = {
+  calendar: CalendarPage,
+  appointments: AppointmentsPage,
   resources: ResourcesPage,
   'work-schedules': WorkSchedulesPage,
   'saturday-shifts': SaturdayShiftsPage,
@@ -22,6 +29,8 @@ const PAGES: Record<SchedulingPath, ComponentType> = {
 // Páginas de una sección que no aparecen en el menú, como los formularios de registro.
 const SUBPAGES: { path: string; permission: string; Page: ComponentType }[] = [
   { path: 'blocks/new', permission: 'schedule-blocks:create', Page: BlockRegisterPage },
+  { path: 'appointments/new', permission: 'appointments:create', Page: AppointmentRegisterRoute },
+  { path: 'appointments/:id/edit', permission: 'appointments:update', Page: AppointmentModifyPage },
 ];
 
 const routes = [

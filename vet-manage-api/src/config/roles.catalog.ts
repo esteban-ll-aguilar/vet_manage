@@ -133,7 +133,9 @@ export const ROLES: readonly RoleDefinition[] = [
       'pets:create', 'pets:read', 'pets:update', 'pets:inactivate', 'pets:activate',
       'species:read', 'breeds:read',
       // Agenda: consulta recursos disponibles y tarifas.
+      'calendar:read',
       'branches:read', 'resources:read-availability', 'rates:read',
+      'appointments:read', 'appointments:create', 'appointments:cancel', 'appointments:update',
       'work-schedules:read', 'schedule-blocks:read',
     ],
   },

@@ -1,4 +1,5 @@
 import { getJson, postJson, putJson, deleteJson } from '../../../infrastructure/api/http-client';
+import type { AppointmentDraft, RegisteredAppointment } from '../appointments/types';
 import type { AvailableResources, ConsultAvailableResourcesParams, Branch, ClinicService, GenerateSaturdayShiftsData, MyAvailability, SaturdayShift, SaveMyAvailabilityData, SubstituteSaturdayShiftData, WorkSchedule, WorkScheduleFormData, VeterinarianOption } from '../types';
 import type { SaturdayShiftRecord, SaturdayShiftResponse } from '../types';
 
@@ -19,6 +20,9 @@ function mapSaturdayShift(record: SaturdayShiftResponse): SaturdayShift {
 }
 
 export const schedulingApi = {
+  registerAppointment(data: AppointmentDraft) {
+    return postJson<RegisteredAppointment, AppointmentDraft>('/scheduling/appointments', data);
+  },
   consultAvailableResources(params: ConsultAvailableResourcesParams) {
     const query = new URLSearchParams({
       sucursalId: params.sucursalId,

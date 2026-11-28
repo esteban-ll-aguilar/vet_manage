@@ -1,0 +1,231 @@
+.appointments-filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 260px);
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.appointment-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.appointment-status--programada {
+  background: #eff8ff;
+  color: #175cd3;
+}
+
+.appointment-status--confirmada,
+.appointment-status--finalizada {
+  background: #ecfdf3;
+  color: #067647;
+}
+
+.appointment-status--en_curso {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.appointment-status--cancelada {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.appointment-status--no_asistio {
+  background: #f2f4f7;
+  color: #475467;
+}
+
+.appointment-dialog {
+  width: min(540px, calc(100% - 32px));
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 26px;
+  border: 1px solid #e4e7ec;
+  border-radius: 16px;
+  background: #ffffff;
+  color: #101828;
+  box-shadow: 0 24px 60px rgb(16 24 40 / 18%);
+  overflow-y: auto;
+}
+
+.appointment-dialog::backdrop {
+  background: rgb(16 24 40 / 48%);
+}
+
+.appointment-dialog__heading h2 {
+  margin: 8px 0;
+  font-size: 22px;
+}
+
+.appointment-dialog__heading p {
+  font-size: 14px;
+  color: #667085;
+}
+
+.appointment-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  padding: 18px;
+  margin: 20px 0;
+  border: 1px solid #e4e7ec;
+  border-radius: 12px;
+  background: #f9fafb;
+}
+
+.appointment-summary div {
+  display: grid;
+  gap: 5px;
+}
+
+.appointment-summary span {
+  color: #667085;
+  font-size: 12px;
+}
+
+.appointment-summary strong {
+  font-size: 14px;
+}
+
+.appointment-warning,
+.appointment-error {
+  padding: 12px 14px;
+  margin: 16px 0;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.appointment-warning {
+  background: #fffaeb;
+  color: #93370d;
+  border: 1px solid #fedf89;
+}
+
+.appointment-error {
+  background: #fef3f2;
+  color: #b42318;
+  border: 1px solid #fecdca;
+}
+
+.appointment-dialog textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  font: inherit;
+  resize: vertical;
+}
+
+.appointment-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+@media (max-width: 640px) {
+  .appointments-filters,
+  .appointment-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .appointment-dialog {
+    padding: 20px;
+  }
+
+  .appointment-dialog__actions > button {
+    flex: 1;
+  }
+}
+
+/* Contenido de la tarjeta separado de sus bordes. */
+.appointments-page .appointments-filters {
+  margin: 0;
+  padding: 18px 24px;
+  border-bottom: 1px solid #eef1f4;
+}
+
+.appointments-page .catalog-card > .appointment-error {
+  margin: 18px 24px;
+}
+
+.appointments-page .page-heading .button {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* Tabla compacta para que las acciones quepan sin desplazamiento horizontal. */
+.appointments-page .product-table th,
+.appointments-page .product-table td {
+  padding: 13px 12px;
+}
+
+.appointments-page .product-table th:first-child,
+.appointments-page .product-table td:first-child {
+  padding-left: 24px;
+}
+
+.appointments-page .product-table th:last-child,
+.appointments-page .product-table td:last-child {
+  padding-right: 24px;
+}
+
+.appointments-page .appointment-cell--nowrap {
+  white-space: nowrap;
+}
+
+.appointment-place {
+  display: grid;
+  gap: 2px;
+}
+
+.appointment-place small {
+  color: #8a96a3;
+  font-size: 11px;
+}
+
+/* Acciones de cada cita: mismo tamaño, como en el resto de la aplicación. */
+.appointment-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.appointment-actions .appointment-action {
+  min-width: 88px;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.appointment-actions__empty {
+  color: #b3bcc5;
+}
+
+@media (max-width: 640px) {
+  .appointments-page .appointments-filters {
+    grid-template-columns: 1fr;
+    padding: 16px;
+  }
+
+  .appointments-page .catalog-card > .appointment-error {
+    margin: 16px;
+  }
+
+  .appointments-page .page-heading {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+}

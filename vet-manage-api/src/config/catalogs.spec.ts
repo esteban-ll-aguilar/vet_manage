@@ -149,13 +149,20 @@ describe('Catálogos de permisos y roles', () => {
     expect(veterinarian.has('rates:manage')).toBe(false);
   });
 
-  it('el Recepcionista consulta recursos disponibles pero no gestiona bloqueos ni tarifas', () => {
+  it('el Recepcionista consulta recursos sin gestionar bloqueos ni tarifas', () => {
     const receptionist = keysOf('receptionist');
 
     expect(receptionist.has('resources:read-availability')).toBe(true);
     expect(receptionist.has('rates:read')).toBe(true);
     expect(receptionist.has('schedule-blocks:create')).toBe(false);
     expect(receptionist.has('rates:manage')).toBe(false);
+  });
+
+  it('solo la Recepcionista registra citas presenciales', () => {
+    expect(keysOf('receptionist').has('appointments:create')).toBe(true);
+    for (const name of ['administrator', 'manager', 'veterinarian', 'veterinary_technician', 'cashier']) {
+      expect(keysOf(name).has('appointments:create'), name).toBe(false);
+    }
   });
 
   it('el Bodeguero también registra entradas de lote (HU-02)', () => {

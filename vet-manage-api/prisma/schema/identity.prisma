@@ -76,13 +76,19 @@ model User {
   deactivatedClients Client[]     @relation("ClientDeactivatedBy")
 
   // agendamiento de Citas
-  horariosBase            HorarioBase[]    @relation("HorarioBaseVeterinario")
-  bloqueosVeterinario     BloqueoHorario[] @relation("BloqueoHorarioVeterinario")
-  bloqueosRegistrados     BloqueoHorario[] @relation("BloqueoHorarioRegistradoPor")
-  bloqueosEliminados      BloqueoHorario[] @relation("BloqueoHorarioEliminadoPor")
-  citasComoVeterinario    Cita[]           @relation("CitaVeterinario")
-  citasRegistradas        Cita[]           @relation("CitaRegistradaPor")
-  notifications     Notification[]
+  horariosBase           HorarioBase[]      @relation("HorarioBaseVeterinario")
+  bloqueosVeterinario    BloqueoHorario[]   @relation("BloqueoHorarioVeterinario")
+  bloqueosRegistrados    BloqueoHorario[]   @relation("BloqueoHorarioRegistradoPor")
+  bloqueosEliminados     BloqueoHorario[]   @relation("BloqueoHorarioEliminadoPor")
+  citasComoVeterinario   Cita[]             @relation("CitaVeterinario")
+  citasRegistradas       Cita[]             @relation("CitaRegistradaPor")
+  cambiosEstadoCita      CambioEstadoCita[] @relation("CambioEstadoCitaRealizadoPor")
+  reprogramaciones       Reprogramacion[]   @relation("ReprogramacionRealizadaPor")
+  pagosRegistrados       Pago[]             @relation("PagoRegistradoPor")
+  reembolsosAutorizados  OrdenReembolso[]   @relation("OrdenReembolsoAutorizadaPor")
+  devolucionesRealizadas Devolucion[]       @relation("DevolucionRealizadaPor")
+  ofertasTurno           OfertaTurno[]      @relation("OfertaTurnoVeterinario")
+  notifications          Notification[]
 
   @@index([status])
   @@map("users")
